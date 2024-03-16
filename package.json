@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "blitz dev",
     "build": "blitz build",
+    "db:migrate": "npx prisma generate && npx prisma migrate deploy",
     "start": "blitz start",
     "studio": "blitz prisma studio",
     "lint": "eslint --ignore-path .gitignore --ext .js,.ts,.tsx .",
@@ -31,7 +32,7 @@
     "@prisma/client": "5.4.2",
     "blitz": "2.0.5",
     "formik": "2.4.5",
-    "next": "13.5.4",
+    "next": "14",
     "prisma": "5.4.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -62,7 +63,7 @@
     "prettier-plugin-prisma": "4.4.0",
     "pretty-quick": "3.1.3",
     "preview-email": "3.0.7",
-    "typescript": "^4.8.4",
+    "typescript": "5",
     "vite-tsconfig-paths": "3.6.0",
     "vitest": "0.25.3"
   }
