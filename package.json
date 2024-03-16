@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "blitz dev",
-    "build": "blitz build",
+    "build": "npm run db:migrate && blitz build",
     "db:migrate": "npx prisma generate && npx prisma migrate deploy",
     "start": "blitz start",
     "studio": "blitz prisma studio",
