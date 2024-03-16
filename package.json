@@ -29,6 +29,8 @@
     "@blitzjs/auth": "2.0.5",
     "@blitzjs/next": "2.0.5",
     "@blitzjs/rpc": "2.0.5",
+    "@hookform/error-message": "2.0.1",
+    "@hookform/resolvers": "2.9.11",
     "@prisma/client": "5.4.2",
     "blitz": "2.0.5",
     "formik": "2.4.5",
@@ -36,11 +38,9 @@
     "prisma": "5.4.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "secure-password": "4.0.0",
-    "zod": "3.22.4",
     "react-hook-form": "7.50.1",
-    "@hookform/resolvers": "2.9.11",
-    "@hookform/error-message": "2.0.1"
+    "secure-password": "4.0.0",
+    "zod": "3.22.4"
   },
   "devDependencies": {
     "@next/env": "13.4.19",
@@ -66,5 +66,10 @@
     "typescript": "5",
     "vite-tsconfig-paths": "3.6.0",
     "vitest": "0.25.3"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@blitzjs/auth@2.0.5": "patches/@blitzjs__auth@2.0.5.patch"
+    }
   }
 }

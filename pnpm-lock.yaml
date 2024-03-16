@@ -4,10 +4,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  "@blitzjs/auth@2.0.5":
+    hash: ojyvm3zcqin23biy3pl3dcicq4
+    path: patches/@blitzjs__auth@2.0.5.patch
+
 dependencies:
   "@blitzjs/auth":
     specifier: 2.0.5
-    version: 2.0.5(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0)
+    version: 2.0.5(patch_hash=ojyvm3zcqin23biy3pl3dcicq4)(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0)
   "@blitzjs/next":
     specifier: 2.0.5
     version: 2.0.5(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)(tslog@4.9.0)(webpack@5.90.3)
@@ -2858,7 +2863,7 @@ packages:
       "@babel/helper-validator-identifier": 7.22.20
       to-fast-properties: 2.0.0
 
-  /@blitzjs/auth@2.0.5(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0):
+  /@blitzjs/auth@2.0.5(patch_hash=ojyvm3zcqin23biy3pl3dcicq4)(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0):
     resolution:
       {
         integrity: sha512-xXE727QCYDtzfrBy9oTpRQ4ah9U4FgnvLGz+366r1AE77uRzsZmKz9MamyvyJl0URIVlpj0fMtVppkZHRbRsIA==,
@@ -2901,6 +2906,7 @@ packages:
       supports-color: 8.1.1
       url: 0.11.0
     dev: false
+    patched: true
 
   /@blitzjs/generator@2.0.5:
     resolution:
