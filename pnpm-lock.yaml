@@ -4,21 +4,16 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  "@blitzjs/auth@2.0.5":
-    hash: ojyvm3zcqin23biy3pl3dcicq4
-    path: patches/@blitzjs__auth@2.0.5.patch
-
 dependencies:
   "@blitzjs/auth":
-    specifier: 2.0.5
-    version: 2.0.5(patch_hash=ojyvm3zcqin23biy3pl3dcicq4)(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0)
+    specifier: 2.0.6
+    version: 2.0.6(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0)
   "@blitzjs/next":
-    specifier: 2.0.5
-    version: 2.0.5(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)(tslog@4.9.0)(webpack@5.90.3)
+    specifier: 2.0.6
+    version: 2.0.6(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)(tslog@4.9.0)(webpack@5.90.3)
   "@blitzjs/rpc":
-    specifier: 2.0.5
-    version: 2.0.5(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)
+    specifier: 2.0.6
+    version: 2.0.6(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)
   "@hookform/error-message":
     specifier: 2.0.1
     version: 2.0.1(react-dom@18.2.0)(react-hook-form@7.50.1)(react@18.2.0)
@@ -186,7 +181,7 @@ packages:
       "@babel/traverse": 7.23.9(supports-color@8.1.1)
       "@babel/types": 7.12.10
       convert-source-map: 1.9.0
-      debug: 4.3.3(supports-color@8.1.1)
+      debug: 4.3.4(supports-color@8.1.1)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       lodash: 4.17.21
@@ -2863,13 +2858,13 @@ packages:
       "@babel/helper-validator-identifier": 7.22.20
       to-fast-properties: 2.0.0
 
-  /@blitzjs/auth@2.0.5(patch_hash=ojyvm3zcqin23biy3pl3dcicq4)(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0):
+  /@blitzjs/auth@2.0.6(blitz@2.0.5)(next@14.1.3)(secure-password@4.0.0):
     resolution:
       {
-        integrity: sha512-xXE727QCYDtzfrBy9oTpRQ4ah9U4FgnvLGz+366r1AE77uRzsZmKz9MamyvyJl0URIVlpj0fMtVppkZHRbRsIA==,
+        integrity: sha512-rEXwKP2VMbPDOdIzofRoKmpzoO/9k7iQ4gETwfKpWXJ0Q7LHuloBbqtzBul36pPC0dbK94FIqs8yaO4Z7+WWTg==,
       }
     peerDependencies:
-      blitz: 2.0.5
+      blitz: 2.0.6
       next: "*"
       next-auth: "*"
       secure-password: 4.0.0
@@ -2906,7 +2901,6 @@ packages:
       supports-color: 8.1.1
       url: 0.11.0
     dev: false
-    patched: true
 
   /@blitzjs/generator@2.0.5:
     resolution:
@@ -2943,19 +2937,19 @@ packages:
       zod: 3.20.2
     dev: false
 
-  /@blitzjs/next@2.0.5(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)(tslog@4.9.0)(webpack@5.90.3):
+  /@blitzjs/next@2.0.6(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)(tslog@4.9.0)(webpack@5.90.3):
     resolution:
       {
-        integrity: sha512-H+gCDTZM38sNUiJrjjhGeUDIgygYY8EeFnYIek5iPpgD9P8EL1hsUMdOGwWm6qgbXNeD9RNx/qRLrL+stLs+Hg==,
+        integrity: sha512-U2XO/fwpMqm+3CdU8F6Bgw5zm/tPq11Ugd1i10WX/zWUuTuyvuPC//WjqvGfmbLlOwpPp1KHUmdRL+k0yLINkA==,
       }
     requiresBuild: true
     peerDependencies:
-      blitz: 2.0.5
+      blitz: 2.0.6
       next: "*"
       react: "*"
       tslog: 4.9.0
     dependencies:
-      "@blitzjs/rpc": 2.0.5(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)
+      "@blitzjs/rpc": 2.0.6(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0)
       "@types/hoist-non-react-statics": 3.3.1
       blitz: 2.0.5(@babel/preset-env@7.23.9)(@types/node@18.11.9)(@types/react@18.0.25)(react@18.2.0)(typescript@5.4.2)
       copy-webpack-plugin: 11.0.0(webpack@5.90.3)
@@ -2974,14 +2968,14 @@ packages:
       - webpack
     dev: false
 
-  /@blitzjs/rpc@2.0.5(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0):
+  /@blitzjs/rpc@2.0.6(@tanstack/query-core@4.24.4)(blitz@2.0.5)(next@14.1.3)(react-dom@18.2.0)(react@18.2.0):
     resolution:
       {
-        integrity: sha512-hIO4jh3LGdhqRO3aPyzTZJvwlJJCgiWNBc32/u3CSiVSn6LgFykfrvYJkrqCa1e7yf6JyIrKd+XN2nFCoi4zVw==,
+        integrity: sha512-WJuOgsJgI32Zh1Ow+tEYv2RwDW3V/rUkV7FRcMFX53fnptAm9+Qui8UtjMo9FjykrGkEY68UzuTTWNQhnzy5Eg==,
       }
     peerDependencies:
       "@tanstack/query-core": 4.24.4
-      blitz: 2.0.5
+      blitz: 2.0.6
       next: "*"
       react: "*"
     dependencies:
@@ -8646,7 +8640,7 @@ packages:
       es6-error: 4.1.1
       matcher: 3.0.0
       roarr: 2.15.4
-      semver: 7.3.8
+      semver: 7.6.0
       serialize-error: 7.0.1
     dev: false
 
