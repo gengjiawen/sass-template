@@ -26,9 +26,9 @@
     ]
   },
   "dependencies": {
-    "@blitzjs/auth": "2.0.5",
-    "@blitzjs/next": "2.0.5",
-    "@blitzjs/rpc": "2.0.5",
+    "@blitzjs/auth": "2.0.6",
+    "@blitzjs/next": "2.0.6",
+    "@blitzjs/rpc": "2.0.6",
     "@hookform/error-message": "2.0.1",
     "@hookform/resolvers": "2.9.11",
     "@prisma/client": "5.4.2",
@@ -66,10 +66,5 @@
     "typescript": "5",
     "vite-tsconfig-paths": "3.6.0",
     "vitest": "0.25.3"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "@blitzjs/auth@2.0.5": "patches/@blitzjs__auth@2.0.5.patch"
-    }
   }
 }

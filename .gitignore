@@ -38,3 +38,4 @@ next-env.d.ts
 
 .vscode
 *.sqlite
+db/dev.sqlite-journal
