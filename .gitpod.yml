@@ -7,3 +7,4 @@
 tasks:
   - init: pnpm i && pnpm db:migrate && pnpm run build
     command: pnpm dev
+  - init: pnpm i -g npm-check-updates
