@@ -34,7 +34,7 @@
     "@prisma/client": "6.5.0",
     "blitz": "3.0.1",
     "formik": "2.4.5",
-    "next": "15.2.2",
+    "next": "15.2.3",
     "prisma": "6.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -43,7 +43,7 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
-    "@next/env": "15.2.1",
+    "@next/env": "15.2.3",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "13.4.0",
     "@testing-library/react-hooks": "8.0.1",
@@ -54,7 +54,7 @@
     "@vitejs/plugin-react": "2.2.0",
     "ajv": "^7.0.0",
     "eslint": "8.27.0",
-    "eslint-config-next": "15.2.1",
+    "eslint-config-next": "15.2.3",
     "eslint-config-prettier": "8.5.0",
     "husky": "8.0.2",
     "jsdom": "20.0.3",
