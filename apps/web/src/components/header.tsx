@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import type { Route } from "next";
 
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
@@ -18,7 +19,7 @@ export default function Header() {
         <nav className="flex gap-4 text-lg">
           {links.map(({ to, label }) => {
             return (
-              <Link key={to} href={to}>
+              <Link key={to} href={to as Route}>
                 {label}
               </Link>
             );
