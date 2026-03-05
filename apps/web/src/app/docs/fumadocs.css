@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* Override fumadocs default max-width for larger screens (iMac) */
+@media (min-width: 1600px) {
+  :root,
+  #nd-docs-layout,
+  #nd-home-layout,
+  #nd-notebook-layout {
+    --fd-layout-width: 100vw;
+  }
+
+}

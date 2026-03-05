@@ -1,177 +1,78 @@
-[![Blitz.js](https://raw.githubusercontent.com/blitz-js/art/master/github-cover-photo.png)](https://blitzjs.com)
+# my-better-t-app
 
-This is a [Blitz.js](https://github.com/blitz-js/blitz) app.
+This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, TRPC, and more.
 
-# ****name****
+## Features
+
+- **TypeScript** - For type safety and improved developer experience
+- **Next.js** - Full-stack React framework
+- **TailwindCSS** - Utility-first CSS for rapid UI development
+- **shadcn/ui** - Reusable UI components
+- **tRPC** - End-to-end type-safe APIs
+- **Prisma** - TypeScript-first ORM
+- **SQLite/Turso** - Database engine
+- **Authentication** - Better-Auth
+- **Oxlint** - Oxlint + Oxfmt (linting & formatting)
+- **Fumadocs** - Beautiful documentation system with MDX support
+- **Todos Feature** - Full-stack todo management with create, toggle, and delete operations (kidding, just a CRUD demo)
 
 ## Getting Started
 
-Run your app in the development mode.
+First, install the dependencies:
 
-```
-blitz dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Environment Variables
-
-Ensure the `.env.local` file has required environment variables:
-
-```
-DATABASE_URL=postgresql://<YOUR_DB_USERNAME>@localhost:5432/blitzjs-demo
+```bash
+pnpm install
 ```
 
-Ensure the `.env.test.local` file has required environment variables:
+## Database Setup
 
-```
-DATABASE_URL=postgresql://<YOUR_DB_USERNAME>@localhost:5432/blitzjs-demo_test
-```
+This project uses SQLite with Prisma.
 
-## Tests
+1. Start the local SQLite database (optional):
 
-Runs your tests using Jest.
-
-```
-yarn test
+```bash
+pnpm run db:local
 ```
 
-Blitz comes with a test setup using [Vitest](https://vitest.dev/) and [react-testing-library](https://testing-library.com/).
+2. Update your root `.env` file (project root) with the appropriate connection details if needed.  
+   `apps/web/.env` is also supported as a fallback.
 
-## Commands
+3. Apply the schema to your database:
 
-Blitz comes with a powerful CLI that is designed to make development easy and fast. You can install it with `npm i -g blitz`
-
-```
-  blitz [COMMAND]
-
-  dev       Start a development server
-  build     Create a production build
-  start     Start a production server
-  export    Export your Blitz app as a static application
-  prisma    Run prisma commands
-  generate  Generate new files for your Blitz project
-  console   Run the Blitz console REPL
-  install   Install a recipe
-  help      Display help for blitz
-  test      Run project tests
+```bash
+pnpm run db:push
 ```
 
-You can read more about it on the [CLI Overview](https://blitzjs.com/docs/cli-overview) documentation.
+Then, run the development server:
 
-## What's included?
-
-Here is the starting structure of your app.
-
-```
-blitzjs-demo
-├── README.md
-├── db
-│   ├── index.ts
-│   └── schema.prisma
-├── integrations
-├── mailers
-│   └── forgotPasswordMailer.ts
-├── next-env.d.ts
-├── next.config.js
-├── package.json
-├── public
-│   └── favicon.ico
-├── src
-│   ├── app
-│   │   ├── (auth)
-│   │   │   ├── components
-│   │   │   │   ├── ForgotPasswordForm.tsx
-│   │   │   │   ├── LoginForm.tsx
-│   │   │   │   ├── LogoutButton.tsx
-│   │   │   │   ├── ResetPasswordForm.tsx
-│   │   │   │   └── SignupForm.tsx
-│   │   │   ├── forgot-password
-│   │   │   │   └── page.tsx
-│   │   │   ├── layout.tsx
-│   │   │   ├── login
-│   │   │   │   └── page.tsx
-│   │   │   ├── mutations
-│   │   │   │   ├── changePassword.ts
-│   │   │   │   ├── forgotPassword.test.ts
-│   │   │   │   ├── forgotPassword.ts
-│   │   │   │   ├── login.ts
-│   │   │   │   ├── logout.ts
-│   │   │   │   ├── resetPassword.test.ts
-│   │   │   │   ├── resetPassword.ts
-│   │   │   │   └── signup.ts
-│   │   │   ├── reset-password
-│   │   │   │   └── page.tsx
-│   │   │   ├── signup
-│   │   │   │   └── page.tsx
-│   │   │   └── validations.ts
-│   │   ├── blitz-auth-config.ts
-│   │   ├── blitz-client.ts
-│   │   ├── blitz-server.ts
-│   │   ├── components
-│   │   │   ├── Form.tsx
-│   │   │   └── LabeledTextField.tsx
-│   │   ├── error.tsx
-│   │   ├── layout.tsx
-│   │   ├── loading.tsx
-│   │   ├── page.tsx
-│   │   ├── styles
-│   │   │   ├── Home.module.css
-│   │   │   └── globals.css
-│   │   └── users
-│   │       ├── hooks
-│   │       │   └── useCurrentUser.ts
-│   │       └── queries
-│   │           └── getCurrentUser.ts
-│   └── pages
-│       └── api
-│           └── rpc
-│               └── [[...blitz]].ts
-├── tsconfig.json
-└── types.ts
+```bash
+pnpm run dev
 ```
 
-These files are:
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the fullstack application.
 
-- The `src/` folder is a container for most of your project. This is where you’ll put any pages or API routes.
+## Git Hooks and Formatting
 
-- `db/` is where your database configuration goes. If you’re writing models or checking migrations, this is where to go.
+- Format and lint fix: `pnpm run check`
 
-- `public/` is a folder where you will put any static assets. If you have images, files, or videos which you want to use in your app, this is where to put them.
+## Project Structure
 
-- `integrations/` is a folder to put all third-party integrations like with Stripe, Sentry, etc.
+```
+my-better-t-app/
+├── apps/
+│   └── web/         # Fullstack application (Next.js)
+├── packages/
+│   ├── api/         # API layer / business logic
+│   ├── auth/        # Authentication configuration & logic
+│   └── db/          # Database schema & queries
+```
 
-- `test/` is a folder where you can put test utilities and integration tests.
+## Available Scripts
 
-- `package.json` contains information about your dependencies and devDependencies. If you’re using a tool like `npm` or `yarn`, you won’t have to worry about this much.
-
-- `tsconfig.json` is our recommended setup for TypeScript.
-
-- `.babel.config.js`, `.eslintrc.js`, `.env`, etc. ("dotfiles") are configuration files for various bits of JavaScript tooling.
-
-- `blitz.config.ts` is for advanced custom configuration of Blitz. [Here you can learn how to use it](https://blitzjs.com/docs/blitz-config).
-
-- `vitest.config.ts` contains config for Vitest tests. You can [customize it if needed](https://vitejs.dev/config/).
-
-You can read more about it in the [File Structure](https://blitzjs.com/docs/file-structure) section of the documentation.
-
-### Tools included
-
-Blitz comes with a set of tools that corrects and formats your code, facilitating its future maintenance. You can modify their options and even uninstall them.
-
-- **ESLint**: It lints your code: searches for bad practices and tell you about it. You can customize it via the `.eslintrc.js`, and you can install (or even write) plugins to have it the way you like it. It already comes with the [`blitz`](https://github.com/blitz-js/blitz/tree/canary/packages/eslint-config) config, but you can remove it safely. [Learn More](https://blitzjs.com/docs/eslint-config).
-- **Husky**: It adds [githooks](https://git-scm.com/docs/githooks), little pieces of code that get executed when certain Git events are triggerd. For example, `pre-commit` is triggered just before a commit is created. You can see the current hooks inside `.husky/`. If are having problems commiting and pushing, check out ther [troubleshooting](https://typicode.github.io/husky/#/?id=troubleshoot) guide. [Learn More](https://blitzjs.com/docs/husky-config).
-- **Prettier**: It formats your code to look the same everywhere. You can configure it via the `.prettierrc` file. The `.prettierignore` contains the files that should be ignored by Prettier; useful when you have large files or when you want to keep a custom formatting. [Learn More](https://blitzjs.com/docs/prettier-config).
-
-## Learn more
-
-Read the [Blitz.js Documentation](https://blitzjs.com/docs/getting-started) to learn more.
-
-The Blitz community is warm, safe, diverse, inclusive, and fun! Feel free to reach out to us in any of our communication channels.
-
-- [Website](https://blitzjs.com)
-- [Discord](https://blitzjs.com/discord)
-- [Report an issue](https://github.com/blitz-js/blitz/issues/new/choose)
-- [Forum discussions](https://github.com/blitz-js/blitz/discussions)
-- [How to Contribute](https://blitzjs.com/docs/contributing)
-- [Sponsor or donate](https://github.com/blitz-js/blitz#sponsors-and-donations)
+- `pnpm run dev`: Start all applications in development mode
+- `pnpm run build`: Build all applications
+- `pnpm run check-types`: Check TypeScript types across all apps
+- `pnpm run db:push`: Push schema changes to database
+- `pnpm run db:studio`: Open database studio UI
+- `pnpm run db:local`: Start the local SQLite database
+- `pnpm run check`: Run Oxlint and Oxfmt
