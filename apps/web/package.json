@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "pnpm --dir ../.. --filter @my-better-t-app/db db:generate",
+    "prisma:generate": "pnpm --dir ../.. --filter @my-better-t-app/db db:generate",
+    "predev": "pnpm run prisma:generate",
+    "prebuild": "pnpm run prisma:generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx && pnpm run prisma:generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
@@ -29,7 +31,7 @@
     "fumadocs-mdx": "14.2.6",
     "fumadocs-ui": "16.4.7",
     "lucide-react": "^0.546.0",
-    "next": "catalog:",
+    "next": "^16.1.6",
     "next-themes": "^0.4.6",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
