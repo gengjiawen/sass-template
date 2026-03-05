@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "pnpm --dir ../.. --filter @my-better-t-app/db db:generate",
+    "prisma:generate": "pnpm --dir ../.. --filter @my-better-t-app/db db:generate",
+    "predev": "pnpm run prisma:generate",
+    "prebuild": "pnpm run prisma:generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx && pnpm run prisma:generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
