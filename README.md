@@ -37,10 +37,10 @@ pnpm run db:local
 2. Update your root `.env` file (project root) with the appropriate connection details if needed.  
    `apps/web/.env` is also supported as a fallback.
 
-3. Apply the schema to your database:
+3. Run the initial migration:
 
 ```bash
-pnpm run db:push
+pnpm run db:migrate
 ```
 
 Then, run the development server:
@@ -72,7 +72,8 @@ my-better-t-app/
 - `pnpm run dev`: Start all applications in development mode
 - `pnpm run build`: Build all applications
 - `pnpm run check-types`: Check TypeScript types across all apps
-- `pnpm run db:push`: Push schema changes to database
+- `pnpm run db:push`: Push schema changes to database (dev convenience)
 - `pnpm run db:studio`: Open database studio UI
 - `pnpm run db:local`: Start the local SQLite database
+- `pnpm run db:migrate:deploy`: Apply committed migrations (production)
 - `pnpm run check`: Run Oxlint and Oxfmt

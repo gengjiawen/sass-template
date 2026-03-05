@@ -16,6 +16,7 @@
     "db:studio": "pnpm --filter @my-better-t-app/db db:studio",
     "db:generate": "pnpm --filter @my-better-t-app/db db:generate",
     "db:migrate": "pnpm --filter @my-better-t-app/db db:migrate",
+    "db:migrate:deploy": "pnpm --filter @my-better-t-app/db db:migrate:deploy",
     "db:local": "pnpm --filter @my-better-t-app/db db:local",
     "check": "oxlint && oxfmt --write"
   },

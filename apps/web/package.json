@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "prisma:generate": "pnpm --dir ../.. --filter @my-better-t-app/db db:generate",
+    "prisma:migrate:deploy": "pnpm --dir ../.. --filter @my-better-t-app/db db:migrate:deploy",
     "predev": "pnpm run prisma:generate",
-    "prebuild": "pnpm run prisma:generate",
+    "prebuild": "pnpm run prisma:generate && pnpm run prisma:migrate:deploy",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "postinstall": "fumadocs-mdx && pnpm run prisma:generate"
+    "postinstall": "fumadocs-mdx && pnpm run prisma:generate && pnpm run prisma:migrate:deploy"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
