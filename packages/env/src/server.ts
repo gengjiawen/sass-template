@@ -6,10 +6,12 @@ import { z } from "zod";
 // Support both running from workspace root and from apps/web.
 dotenv.config({
   path: path.resolve(process.cwd(), "../../.env"),
+  quiet: true,
 });
 
 dotenv.config({
   path: path.resolve(process.cwd(), ".env"),
+  quiet: true,
 });
 
 export const env = createEnv({
