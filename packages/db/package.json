@@ -19,14 +19,14 @@
   },
   "dependencies": {
     "@my-better-t-app/env": "workspace:*",
-    "@prisma/adapter-libsql": "^7.2.0",
+    "@prisma/adapter-libsql": "^7.5.0",
     "@prisma/client": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@my-better-t-app/config": "workspace:*",
-    "prisma": "^7.2.0",
+    "prisma": "^7.5.0",
     "typescript": "catalog:"
   }
 }
