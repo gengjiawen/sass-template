@@ -5,8 +5,8 @@ catalog:
   dotenv: ^17.2.2
   zod: ^4.1.13
   typescript: ^5
-  next: ^16.1.6
-  "@prisma/client": ^7.2.0
-  "@trpc/server": ^11.7.2
-  "@trpc/client": ^11.7.2
-  better-auth: ^1.4.9
+  next: ^16.2.0
+  "@prisma/client": ^7.5.0
+  "@trpc/server": ^11.13.4
+  "@trpc/client": ^11.13.4
+  better-auth: ^1.5.5
