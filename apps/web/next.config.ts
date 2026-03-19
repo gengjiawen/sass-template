@@ -5,6 +5,7 @@ import type { NextConfig } from "next";
 const withMDX = createMDX();
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["eu.gengjiawen.com"],
   experimental: {
     proxyTimeout: 5 * 60 * 1000,
     proxyClientMaxBodySize: '256mb',
