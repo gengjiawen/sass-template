@@ -6,7 +6,7 @@ catalog:
   zod: ^4.1.13
   typescript: ^5
   next: ^16.2.1
-  "@prisma/client": ^7.5.0
-  "@trpc/server": ^11.14.1
-  "@trpc/client": ^11.14.1
+  "@prisma/client": ^7.6.0
+  "@trpc/server": ^11.16.0
+  "@trpc/client": ^11.16.0
   better-auth: ^1.5.6
