@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@my-better-t-app/config": "workspace:*",
-    "@types/node": "^22.13.14",
+    "@types/node": "^25.5.2",
     "oxfmt": "^0.43.0",
     "oxlint": "^1.58.0",
     "typescript": "catalog:"
