@@ -4,8 +4,8 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "monthly"
+      day-of-month: 7
     open-pull-requests-limit: 5
     groups:
       npm-non-breaking:
