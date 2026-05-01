@@ -1,11 +1,11 @@
-import "@my-better-t-app/env/web";
-import { createMDX } from "fumadocs-mdx/next";
-import type { NextConfig } from "next";
+import '@my-better-t-app/env/web';
+import { createMDX } from 'fumadocs-mdx/next';
+import type { NextConfig } from 'next';
 
 const withMDX = createMDX();
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["eu.gengjiawen.com"],
+  allowedDevOrigins: ['eu.gengjiawen.com'],
   experimental: {
     proxyTimeout: 5 * 60 * 1000,
     proxyClientMaxBodySize: "256mb",
@@ -16,8 +16,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/docs/:path*.mdx",
-        destination: "/llms.mdx/docs/:path*",
+        source: '/docs/:path*.mdx',
+        destination: '/llms.mdx/docs/:path*',
       },
     ];
   },

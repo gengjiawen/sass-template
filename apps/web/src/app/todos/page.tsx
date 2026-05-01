@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Loader2, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { trpc } from "@/utils/trpc";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { trpc } from '@/utils/trpc';
 
 function useTodos() {
   const todoQuery = useQuery(trpc.todo.getAll.queryOptions());
@@ -48,7 +48,7 @@ function useTodos() {
 }
 
 export default function TodosPage() {
-  const [newTodoText, setNewTodoText] = useState("");
+  const [newTodoText, setNewTodoText] = useState('');
   const { todos, isLoading, isCreating, isMutating, addTodo, toggleTodo, deleteTodo } = useTodos();
 
   return (
@@ -66,7 +66,7 @@ export default function TodosPage() {
                 return;
               }
               addTodo(newTodoText);
-              setNewTodoText("");
+              setNewTodoText('');
             }}
             className="mb-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
           >
@@ -82,7 +82,7 @@ export default function TodosPage() {
               disabled={isCreating || !newTodoText.trim()}
               className="px-8 py-6 text-base"
             >
-              {isCreating ? <Loader2 className="h-5 w-5 animate-spin" /> : "Add"}
+              {isCreating ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Add'}
             </Button>
           </form>
 
@@ -112,7 +112,7 @@ export default function TodosPage() {
                     <label
                       htmlFor={`todo-${todo.id}`}
                       className={`text-base cursor-pointer flex-1 ${
-                        todo.completed ? "line-through text-muted-foreground" : ""
+                        todo.completed ? 'line-through text-muted-foreground' : ''
                       }`}
                     >
                       {todo.text}

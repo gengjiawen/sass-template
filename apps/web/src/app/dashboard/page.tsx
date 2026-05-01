@@ -1,10 +1,10 @@
-import { auth } from "@my-better-t-app/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { auth } from '@my-better-t-app/auth';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from '@/lib/auth-client';
 
-import Dashboard from "./dashboard";
+import Dashboard from './dashboard';
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   });
 
   if (!session?.user) {
-    redirect("/login");
+    redirect('/login');
   }
 
   return (

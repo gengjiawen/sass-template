@@ -1,34 +1,34 @@
-"use client";
-import Link from "next/link";
-import { Menu, X } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import type { Route } from "next";
+'use client';
+import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import type { Route } from 'next';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
-import { ModeToggle } from "./mode-toggle";
-import { Button } from "./ui/button";
-import UserMenu from "./user-menu";
+import { ModeToggle } from './mode-toggle';
+import { Button } from './ui/button';
+import UserMenu from './user-menu';
 
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const links = [
-    { to: "/", label: "Home" },
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/todos", label: "Todos" },
-    { to: "/docs", label: "Docs" },
+    { to: '/', label: 'Home' },
+    { to: '/dashboard', label: 'Dashboard' },
+    { to: '/todos', label: 'Todos' },
+    { to: '/docs', label: 'Docs' },
   ] as const;
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  const isActiveLink = (to: (typeof links)[number]["to"]) => {
-    if (to === "/") {
-      return pathname === "/";
+  const isActiveLink = (to: (typeof links)[number]['to']) => {
+    if (to === '/') {
+      return pathname === '/';
     }
 
     return pathname === to || pathname?.startsWith(`${to}/`);
@@ -53,8 +53,8 @@ export default function Header() {
                   key={to}
                   href={to as Route}
                   className={cn(
-                    "rounded-full px-3 py-1.5 text-sm font-medium text-foreground/65 transition-all duration-200 hover:bg-foreground/[0.04] hover:text-foreground",
-                    isActive && "bg-foreground/[0.08] text-foreground shadow-sm",
+                    'rounded-full px-3 py-1.5 text-sm font-medium text-foreground/65 transition-all duration-200 hover:bg-foreground/[0.04] hover:text-foreground',
+                    isActive && 'bg-foreground/[0.08] text-foreground shadow-sm',
                   )}
                 >
                   {label}
@@ -76,7 +76,7 @@ export default function Header() {
             size="icon"
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-navigation"
-            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             onClick={() => {
               setIsMobileMenuOpen((current) => !current);
             }}
@@ -90,10 +90,10 @@ export default function Header() {
       <div
         id="mobile-navigation"
         className={cn(
-          "overflow-hidden bg-background/92 transition-all duration-300 md:hidden",
+          'overflow-hidden bg-background/92 transition-all duration-300 md:hidden',
           isMobileMenuOpen
-            ? "max-h-96 border-t border-border/60 opacity-100"
-            : "pointer-events-none max-h-0 opacity-0",
+            ? 'max-h-96 border-t border-border/60 opacity-100'
+            : 'pointer-events-none max-h-0 opacity-0',
         )}
       >
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6">
@@ -105,8 +105,8 @@ export default function Header() {
                 key={to}
                 href={to as Route}
                 className={cn(
-                  "rounded-2xl px-4 py-3 text-base font-medium text-foreground/80 transition-colors hover:bg-foreground/[0.04] hover:text-foreground",
-                  isActive && "bg-foreground/[0.08] text-foreground",
+                  'rounded-2xl px-4 py-3 text-base font-medium text-foreground/80 transition-colors hover:bg-foreground/[0.04] hover:text-foreground',
+                  isActive && 'bg-foreground/[0.08] text-foreground',
                 )}
               >
                 {label}
