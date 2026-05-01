@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["eu.gengjiawen.com"],
   experimental: {
     proxyTimeout: 5 * 60 * 1000,
-    proxyClientMaxBodySize: '256mb',
+    proxyClientMaxBodySize: "256mb",
     turbopackFileSystemCacheForBuild: true,
   },
   typedRoutes: true,

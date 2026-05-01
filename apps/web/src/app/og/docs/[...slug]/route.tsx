@@ -13,7 +13,11 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
   if (!page) notFound();
 
   return new ImageResponse(
-    <DefaultImage title={page.data.title} description={page.data.description} site="my-better-t-app" />,
+    <DefaultImage
+      title={page.data.title}
+      description={page.data.description}
+      site="my-better-t-app"
+    />,
     {
       width: 1200,
       height: 630,

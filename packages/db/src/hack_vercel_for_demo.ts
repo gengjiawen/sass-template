@@ -34,9 +34,7 @@ function loadInitMigrationSql() {
     existsSync(candidatePath),
   );
   if (!migrationPath) {
-    throw new Error(
-      `[db] Cannot find ${INIT_MIGRATION_RELATIVE_PATH} from cwd ${process.cwd()}`,
-    );
+    throw new Error(`[db] Cannot find ${INIT_MIGRATION_RELATIVE_PATH} from cwd ${process.cwd()}`);
   }
 
   return readFileSync(migrationPath, "utf8");

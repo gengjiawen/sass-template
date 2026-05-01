@@ -77,7 +77,11 @@ export default function TodosPage() {
               disabled={isCreating}
               className="text-base py-6"
             />
-            <Button type="submit" disabled={isCreating || !newTodoText.trim()} className="px-8 py-6 text-base">
+            <Button
+              type="submit"
+              disabled={isCreating || !newTodoText.trim()}
+              className="px-8 py-6 text-base"
+            >
               {isCreating ? <Loader2 className="h-5 w-5 animate-spin" /> : "Add"}
             </Button>
           </form>
