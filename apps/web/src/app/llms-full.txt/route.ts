@@ -8,4 +8,3 @@ export async function GET() {
 
   return new Response(scanned.join("\n\n"));
 }
-
