@@ -1,14 +1,14 @@
-import prisma from "@my-better-t-app/db";
-import { TRPCError } from "@trpc/server";
-import z from "zod";
+import prisma from '@my-better-t-app/db';
+import { TRPCError } from '@trpc/server';
+import z from 'zod';
 
-import { publicProcedure, router } from "../index";
+import { publicProcedure, router } from '../index';
 
 export const todoRouter = router({
   getAll: publicProcedure.query(async () => {
     return await prisma.todo.findMany({
       orderBy: {
-        id: "asc",
+        id: 'asc',
       },
     });
   }),
@@ -33,8 +33,8 @@ export const todoRouter = router({
         });
       } catch (error) {
         throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Todo not found",
+          code: 'NOT_FOUND',
+          message: 'Todo not found',
         });
       }
     }),
@@ -46,8 +46,8 @@ export const todoRouter = router({
       });
     } catch (error) {
       throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Todo not found",
+        code: 'NOT_FOUND',
+        message: 'Todo not found',
       });
     }
   }),

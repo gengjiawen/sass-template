@@ -1,9 +1,9 @@
-import { generate as DefaultImage } from "fumadocs-ui/og";
-import { notFound } from "next/navigation";
-import { ImageResponse } from "next/og";
-import type { NextRequest } from "next/server";
+import { generate as DefaultImage } from 'fumadocs-ui/og';
+import { notFound } from 'next/navigation';
+import { ImageResponse } from 'next/og';
+import type { NextRequest } from 'next/server';
 
-import { getPageImage, source } from "@/lib/source";
+import { getPageImage, source } from '@/lib/source';
 
 export const revalidate = false;
 

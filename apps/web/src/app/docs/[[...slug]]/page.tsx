@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import { createRelativeLink } from "fumadocs-ui/mdx";
-import { notFound } from "next/navigation";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
+import { createRelativeLink } from 'fumadocs-ui/mdx';
+import { notFound } from 'next/navigation';
 
-import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
-import { getPageImage, source } from "@/lib/source";
-import { getMDXComponents } from "@/mdx-components";
+import { LLMCopyButton, ViewOptions } from '@/components/ai/page-actions';
+import { getPageImage, source } from '@/lib/source';
+import { getMDXComponents } from '@/mdx-components';
 
 export default async function Page({ params }: { params: Promise<{ slug?: string[] }> }) {
   const { slug } = await params;
@@ -17,9 +17,9 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
 
   // Update to match your repo, or remove if you don't need the "Open in GitHub" link.
   const gitConfig = {
-    user: "username",
-    repo: "repo",
-    branch: "main",
+    user: 'username',
+    repo: 'repo',
+    branch: 'main',
   };
 
   return (

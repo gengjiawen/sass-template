@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation";
-import type { NextRequest } from "next/server";
+import { notFound } from 'next/navigation';
+import type { NextRequest } from 'next/server';
 
-import { getLLMText, source } from "@/lib/source";
+import { getLLMText, source } from '@/lib/source';
 
 export const revalidate = false;
 
@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug?:
 
   return new Response(await getLLMText(page), {
     headers: {
-      "Content-Type": "text/markdown",
+      'Content-Type': 'text/markdown',
     },
   });
 }
