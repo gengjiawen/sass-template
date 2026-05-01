@@ -3,7 +3,7 @@ packages:
   - packages/*
 catalog:
   dotenv: ^17.4.2
-  zod: ^4.1.13
+  zod: ^4.4.1
   typescript: ^6
   next: ^16.2.4
   "@prisma/client": ^7.8.0
