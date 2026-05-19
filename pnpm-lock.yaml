@@ -31,6 +31,9 @@ catalogs:
       specifier: ^4.4.1
       version: 4.4.1
 
+overrides:
+  lodash-es: 4.18.1
+
 importers:
 
   .:
