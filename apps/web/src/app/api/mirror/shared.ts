@@ -139,7 +139,7 @@ export async function streamCachedFile(
   const file = await fs.open(localPath, 'r');
   const filename = mirrorPath.split('/').at(-1) ?? 'download';
 
-  return new Response(file.readableWebStream(), {
+  return new Response(file.readableWebStream() as ReadableStream, {
     headers: {
       ...cacheHeader,
       'Content-Type': 'application/octet-stream',
