@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import os from 'node:os';
 import path from 'node:path';
 import { createEnv } from '@t3-oss/env-core';
 import { z } from 'zod';
@@ -20,6 +21,7 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
     CORS_ORIGIN: z.url(),
+    GITHUB_MIRROR_DOWNLOAD_DIR: z.string().min(1).default(os.tmpdir()),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   },
   runtimeEnv: process.env,
