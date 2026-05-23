@@ -1,7 +1,7 @@
-import { createContext } from '@/server/api/context';
-import { appRouter } from '@/server/api/root';
-import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import type { NextRequest } from 'next/server';
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
+import type { NextRequest } from 'next/server'
+import { createContext } from '@/server/api/context'
+import { appRouter } from '@/server/api/root'
 
 function handler(req: NextRequest) {
   return fetchRequestHandler({
@@ -9,6 +9,6 @@ function handler(req: NextRequest) {
     req,
     router: appRouter,
     createContext: () => createContext(req.headers),
-  });
+  })
 }
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST }

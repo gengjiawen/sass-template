@@ -1,16 +1,15 @@
-import { generate as DefaultImage } from 'fumadocs-ui/og';
-import { notFound } from 'next/navigation';
-import { ImageResponse } from 'next/og';
-import type { NextRequest } from 'next/server';
+import { generate as DefaultImage } from 'fumadocs-ui/og'
+import { notFound } from 'next/navigation'
+import { ImageResponse } from 'next/og'
+import type { NextRequest } from 'next/server'
+import { getPageImage, source } from '@/lib/source'
 
-import { getPageImage, source } from '@/lib/source';
-
-export const revalidate = false;
+export const revalidate = false
 
 export async function GET(_req: NextRequest, context: { params: Promise<{ slug: string[] }> }) {
-  const { slug } = await context.params;
-  const page = source.getPage(slug.slice(0, -1));
-  if (!page) notFound();
+  const { slug } = await context.params
+  const page = source.getPage(slug.slice(0, -1))
+  if (!page) notFound()
 
   return new ImageResponse(
     <DefaultImage
@@ -22,11 +21,11 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
       width: 1200,
       height: 630,
     },
-  );
+  )
 }
 
 export function generateStaticParams() {
   return source.getPages().map((page) => ({
     slug: getPageImage(page).segments,
-  }));
+  }))
 }

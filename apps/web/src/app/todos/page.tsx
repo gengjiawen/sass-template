@@ -1,41 +1,40 @@
-'use client';
+'use client'
 
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Loader2, Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { trpc } from '@/utils/trpc';
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Loader2, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { trpc } from '@/utils/trpc'
 
 function useTodos() {
-  const todoQuery = useQuery(trpc.todo.getAll.queryOptions());
+  const todoQuery = useQuery(trpc.todo.getAll.queryOptions())
   const refetch = () => {
-    void todoQuery.refetch();
-  };
+    void todoQuery.refetch()
+  }
 
-  const createTodo = useMutation(trpc.todo.create.mutationOptions({ onSuccess: refetch }));
-  const toggleTodo = useMutation(trpc.todo.toggle.mutationOptions({ onSuccess: refetch }));
-  const deleteTodo = useMutation(trpc.todo.delete.mutationOptions({ onSuccess: refetch }));
+  const createTodo = useMutation(trpc.todo.create.mutationOptions({ onSuccess: refetch }))
+  const toggleTodo = useMutation(trpc.todo.toggle.mutationOptions({ onSuccess: refetch }))
+  const deleteTodo = useMutation(trpc.todo.delete.mutationOptions({ onSuccess: refetch }))
 
   const addTodo = (text: string) => {
-    const value = text.trim();
+    const value = text.trim()
     if (!value) {
-      return;
+      return
     }
-    createTodo.mutate({ text: value });
-  };
+    createTodo.mutate({ text: value })
+  }
 
   const toggleTodoById = (id: number, completed: boolean) => {
-    toggleTodo.mutate({ id, completed: !completed });
-  };
+    toggleTodo.mutate({ id, completed: !completed })
+  }
 
   const deleteTodoById = (id: number) => {
-    deleteTodo.mutate({ id });
-  };
+    deleteTodo.mutate({ id })
+  }
 
   return {
     todos: todoQuery.data ?? [],
@@ -45,30 +44,32 @@ function useTodos() {
     addTodo,
     toggleTodo: toggleTodoById,
     deleteTodo: deleteTodoById,
-  };
+  }
 }
 
 export default function TodosPage() {
-  const { t } = useTranslation();
-  const [newTodoText, setNewTodoText] = useState('');
-  const { todos, isLoading, isCreating, isMutating, addTodo, toggleTodo, deleteTodo } = useTodos();
+  const { t } = useTranslation()
+  const [newTodoText, setNewTodoText] = useState('')
+  const { todos, isLoading, isCreating, isMutating, addTodo, toggleTodo, deleteTodo } = useTodos()
 
   return (
     <div className="mx-auto w-full max-w-3xl py-10 px-4 sm:px-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">{t('Todo List')}</CardTitle>
-          <CardDescription className="text-base">{t('Manage your tasks efficiently')}</CardDescription>
+          <CardDescription className="text-base">
+            {t('Manage your tasks efficiently')}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form
             onSubmit={(e) => {
-              e.preventDefault();
+              e.preventDefault()
               if (!newTodoText.trim()) {
-                return;
+                return
               }
-              addTodo(newTodoText);
-              setNewTodoText('');
+              addTodo(newTodoText)
+              setNewTodoText('')
             }}
             className="mb-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
           >
@@ -137,5 +138,5 @@ export default function TodosPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -22,17 +22,17 @@ import {
   ensureCached,
   parseMirrorPath,
   streamCachedFile,
-} from './shared';
+} from './shared'
 
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'
 
 function wantsJsonResponse(request: Request): boolean {
-  return request.headers.get('accept')?.includes('application/json') ?? false;
+  return request.headers.get('accept')?.includes('application/json') ?? false
 }
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const target = searchParams.get('url');
+  const { searchParams } = new URL(request.url)
+  const target = searchParams.get('url')
 
   if (!target) {
     return Response.json(
@@ -41,10 +41,10 @@ export async function GET(request: Request) {
         example: `/api/mirror?url=${EXAMPLE_MIRROR_URL}`,
       },
       { status: 400 },
-    );
+    )
   }
 
-  const mirrorPath = parseMirrorPath(target);
+  const mirrorPath = parseMirrorPath(target)
   if (!mirrorPath) {
     return Response.json(
       {
@@ -52,20 +52,17 @@ export async function GET(request: Request) {
         hint: `Expected a github.com releases download URL, e.g. ${EXAMPLE_MIRROR_URL}`,
       },
       { status: 400 },
-    );
+    )
   }
 
-  const result = await ensureCached(mirrorPath);
-  if (result instanceof Response) return result;
+  const result = await ensureCached(mirrorPath)
+  if (result instanceof Response) return result
 
-  const cacheHeader = { 'X-GitHub-Mirror-Cache': result.cached ? 'hit' : 'miss' };
+  const cacheHeader = { 'X-GitHub-Mirror-Cache': result.cached ? 'hit' : 'miss' }
 
   if (wantsJsonResponse(request)) {
-    return Response.json(
-      { url: buildDownloadUrl(request, mirrorPath) },
-      { headers: cacheHeader },
-    );
+    return Response.json({ url: buildDownloadUrl(request, mirrorPath) }, { headers: cacheHeader })
   }
 
-  return streamCachedFile(result.localPath, mirrorPath, cacheHeader);
+  return streamCachedFile(result.localPath, mirrorPath, cacheHeader)
 }

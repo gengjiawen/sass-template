@@ -1,19 +1,19 @@
-import dotenv from 'dotenv';
-import os from 'node:os';
-import path from 'node:path';
-import { createEnv } from '@t3-oss/env-core';
-import { z } from 'zod';
+import os from 'node:os'
+import path from 'node:path'
+import { createEnv } from '@t3-oss/env-core'
+import dotenv from 'dotenv'
+import { z } from 'zod'
 
 // Support both running from workspace root and from apps/web.
 dotenv.config({
   path: path.resolve(process.cwd(), '../../.env'),
   quiet: true,
-});
+})
 
 dotenv.config({
   path: path.resolve(process.cwd(), '.env'),
   quiet: true,
-});
+})
 
 export const env = createEnv({
   server: {
@@ -26,4 +26,4 @@ export const env = createEnv({
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
-});
+})

@@ -8,13 +8,13 @@ This is a pnpm monorepo (Next.js + tRPC + Prisma + SQLite) with the web app in `
 
 ### Quick reference
 
-| Task | Command |
-|------|---------|
-| Install deps | `pnpm install` |
-| Dev server | `pnpm run dev:web` (port 3000) |
-| Build | `pnpm run build` |
-| Lint + format | `pnpm run check` |
-| DB migrate | `pnpm run db:migrate` |
+| Task          | Command                        |
+| ------------- | ------------------------------ |
+| Install deps  | `pnpm install`                 |
+| Dev server    | `pnpm run dev:web` (port 3000) |
+| Build         | `pnpm run build`               |
+| Lint + format | `pnpm run check`               |
+| DB migrate    | `pnpm run db:migrate`          |
 
 ### Important notes
 

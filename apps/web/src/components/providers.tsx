@@ -1,13 +1,11 @@
-'use client';
+'use client'
 
-import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-import { I18nProvider } from '@/components/i18n-provider';
-import { queryClient } from '@/utils/trpc';
-
-import { ThemeProvider } from './theme-provider';
-import { Toaster } from './ui/sonner';
+import { QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { I18nProvider } from '@/components/i18n-provider'
+import { queryClient } from '@/utils/trpc'
+import { ThemeProvider } from './theme-provider'
+import { Toaster } from './ui/sonner'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -20,5 +18,5 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <Toaster richColors />
       </ThemeProvider>
     </I18nProvider>
-  );
+  )
 }

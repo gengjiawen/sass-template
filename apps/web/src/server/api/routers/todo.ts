@@ -1,8 +1,7 @@
-import prisma from '@my-better-t-app/db';
-import { TRPCError } from '@trpc/server';
-import z from 'zod';
-
-import { publicProcedure, router } from '../trpc';
+import prisma from '@my-better-t-app/db'
+import { TRPCError } from '@trpc/server'
+import z from 'zod'
+import { publicProcedure, router } from '../trpc'
 
 export const todoRouter = router({
   getAll: publicProcedure.query(async () => {
@@ -10,7 +9,7 @@ export const todoRouter = router({
       orderBy: {
         id: 'asc',
       },
-    });
+    })
   }),
 
   create: publicProcedure
@@ -20,7 +19,7 @@ export const todoRouter = router({
         data: {
           text: input.text,
         },
-      });
+      })
     }),
 
   toggle: publicProcedure
@@ -30,12 +29,12 @@ export const todoRouter = router({
         return await prisma.todo.update({
           where: { id: input.id },
           data: { completed: input.completed },
-        });
+        })
       } catch {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Todo not found',
-        });
+        })
       }
     }),
 
@@ -43,12 +42,12 @@ export const todoRouter = router({
     try {
       return await prisma.todo.delete({
         where: { id: input.id },
-      });
+      })
     } catch {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: 'Todo not found',
-      });
+      })
     }
   }),
-});
+})

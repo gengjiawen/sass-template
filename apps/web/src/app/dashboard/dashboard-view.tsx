@@ -1,17 +1,11 @@
-'use client';
+'use client'
 
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
+import { authClient } from '@/lib/auth-client'
+import Dashboard from './dashboard'
 
-import { authClient } from '@/lib/auth-client';
-
-import Dashboard from './dashboard';
-
-export default function DashboardView({
-  session,
-}: {
-  session: typeof authClient.$Infer.Session;
-}) {
-  const { t } = useTranslation();
+export default function DashboardView({ session }: { session: typeof authClient.$Infer.Session }) {
+  const { t } = useTranslation()
 
   return (
     <div>
@@ -21,5 +15,5 @@ export default function DashboardView({
       </p>
       <Dashboard session={session} />
     </div>
-  );
+  )
 }

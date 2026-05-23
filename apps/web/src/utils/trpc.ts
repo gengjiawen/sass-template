@@ -1,9 +1,8 @@
-import type { AppRouter } from '@/server/api/root';
-
-import { QueryCache, QueryClient } from '@tanstack/react-query';
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
-import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
-import { toast } from 'sonner';
+import { QueryCache, QueryClient } from '@tanstack/react-query'
+import { createTRPCClient, httpBatchLink } from '@trpc/client'
+import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
+import { toast } from 'sonner'
+import type { AppRouter } from '@/server/api/root'
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -13,10 +12,10 @@ export const queryClient = new QueryClient({
           label: 'retry',
           onClick: query.invalidate,
         },
-      });
+      })
     },
   }),
-});
+})
 
 const trpcClient = createTRPCClient<AppRouter>({
   links: [
@@ -26,13 +25,13 @@ const trpcClient = createTRPCClient<AppRouter>({
         return fetch(url, {
           ...options,
           credentials: 'include',
-        });
+        })
       },
     }),
   ],
-});
+})
 
 export const trpc = createTRPCOptionsProxy<AppRouter>({
   client: trpcClient,
   queryClient,
-});
+})

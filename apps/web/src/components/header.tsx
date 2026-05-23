@@ -1,22 +1,20 @@
-'use client';
-import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
-import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import type { Route } from 'next';
-
-import { cn } from '@/lib/utils';
-
-import { LanguageToggle } from './language-toggle';
-import { ModeToggle } from './mode-toggle';
-import { Button } from './ui/button';
-import UserMenu from './user-menu';
+'use client'
+import { Menu, X } from 'lucide-react'
+import type { Route } from 'next'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils'
+import { LanguageToggle } from './language-toggle'
+import { ModeToggle } from './mode-toggle'
+import { Button } from './ui/button'
+import UserMenu from './user-menu'
 
 export default function Header() {
-  const { t } = useTranslation();
-  const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useTranslation()
+  const pathname = usePathname()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const links = useMemo(
     () =>
@@ -27,19 +25,19 @@ export default function Header() {
         { to: '/docs', label: t('Docs') },
       ] as const,
     [t],
-  );
+  )
 
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   const isActiveLink = (to: (typeof links)[number]['to']) => {
     if (to === '/') {
-      return pathname === '/';
+      return pathname === '/'
     }
 
-    return pathname === to || pathname?.startsWith(`${to}/`);
-  };
+    return pathname === to || pathname?.startsWith(`${to}/`)
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
@@ -53,7 +51,7 @@ export default function Header() {
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {links.map(({ to, label }) => {
-              const isActive = isActiveLink(to);
+              const isActive = isActiveLink(to)
 
               return (
                 <Link
@@ -66,7 +64,7 @@ export default function Header() {
                 >
                   {label}
                 </Link>
-              );
+              )
             })}
           </nav>
         </div>
@@ -87,7 +85,7 @@ export default function Header() {
             aria-controls="mobile-navigation"
             aria-label={isMobileMenuOpen ? t('Close navigation menu') : t('Open navigation menu')}
             onClick={() => {
-              setIsMobileMenuOpen((current) => !current);
+              setIsMobileMenuOpen((current) => !current)
             }}
             className="rounded-full"
           >
@@ -107,7 +105,7 @@ export default function Header() {
       >
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6">
           {links.map(({ to, label }) => {
-            const isActive = isActiveLink(to);
+            const isActive = isActiveLink(to)
 
             return (
               <Link
@@ -120,7 +118,7 @@ export default function Header() {
               >
                 {label}
               </Link>
-            );
+            )
           })}
 
           <div className="mt-3 border-t border-border/60 pt-3">
@@ -129,5 +127,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }

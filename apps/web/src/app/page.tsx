@@ -1,12 +1,11 @@
-'use client';
-import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
-import { trpc } from '@/utils/trpc';
+'use client'
+import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { trpc } from '@/utils/trpc'
 
 export default function Home() {
-  const { t } = useTranslation();
-  const healthCheck = useQuery(trpc.healthCheck.queryOptions());
+  const { t } = useTranslation()
+  const healthCheck = useQuery(trpc.healthCheck.queryOptions())
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-2">
@@ -29,5 +28,5 @@ export default function Home() {
         </section>
       </div>
     </div>
-  );
+  )
 }

@@ -1,23 +1,22 @@
-'use client';
+'use client'
 
-import { Languages } from 'lucide-react';
-import { useAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
-import { Button } from '@/components/ui/button';
+import { useAtom } from 'jotai'
+import { Languages } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { isSupportedLanguage, languageAtom, type AppLanguage } from '@/i18n/language';
+} from '@/components/ui/dropdown-menu'
+import { isSupportedLanguage, languageAtom, type AppLanguage } from '@/i18n/language'
 
 export function LanguageToggle() {
-  const { t } = useTranslation();
-  const [language, setLanguage] = useAtom(languageAtom);
+  const { t } = useTranslation()
+  const [language, setLanguage] = useAtom(languageAtom)
 
-  const options: AppLanguage[] = ['en-US', 'zh-CN'];
+  const options: AppLanguage[] = ['en-US', 'zh-CN']
 
   return (
     <DropdownMenu>
@@ -31,7 +30,7 @@ export function LanguageToggle() {
             key={value}
             onClick={() => {
               if (isSupportedLanguage(value)) {
-                setLanguage(value);
+                setLanguage(value)
               }
             }}
             className={language === value ? 'bg-accent' : undefined}
@@ -41,5 +40,5 @@ export function LanguageToggle() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
