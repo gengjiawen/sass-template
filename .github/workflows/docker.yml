@@ -6,17 +6,23 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  IMAGE_NAME: ghcr.io/gengjiawen/sass
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Build image
-        run: docker build -t gengjiawen/sass .
+        run: docker build -t $IMAGE_NAME .
 
       - name: Start container
-        run: docker run -d --name app -p 3000:3000 gengjiawen/sass
+        run: docker run -d --name app -p 3000:3000 $IMAGE_NAME
 
       - name: Wait for server
         run: |
@@ -36,6 +42,17 @@ jobs:
           STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000)
           echo "HTTP status: $STATUS"
           [ "$STATUS" = "200" ]
+
+      - name: Login to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          docker tag $IMAGE_NAME $IMAGE_NAME:${{ github.sha }}
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:${{ github.sha }}
 
       - name: Print logs on failure
         if: failure()

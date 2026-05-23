@@ -1,5 +1,11 @@
 # my sass template
 
+[![Docker](https://github.com/gengjiawen/sass-template/actions/workflows/docker.yml/badge.svg)](https://github.com/gengjiawen/sass-template/actions/workflows/docker.yml)
+
+```bash
+docker run -p 3000:3000 ghcr.io/gengjiawen/sass
+```
+
 This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, TRPC, and more.
 
 ## Features
