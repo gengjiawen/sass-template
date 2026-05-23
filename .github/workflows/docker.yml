@@ -1,0 +1,42 @@
+name: Docker
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t gengjiawen/sass .
+
+      - name: Start container
+        run: docker run -d --name app -p 3000:3000 gengjiawen/sass
+
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server failed to start"
+          docker logs app
+          exit 1
+
+      - name: Smoke test
+        run: |
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000)
+          echo "HTTP status: $STATUS"
+          [ "$STATUS" = "200" ]
+
+      - name: Print logs on failure
+        if: failure()
+        run: docker logs app
