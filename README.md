@@ -14,8 +14,12 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 - **Authentication** - Better-Auth
 - **Oxlint** - Oxlint + Oxfmt (linting & formatting)
 - **Fumadocs** - Beautiful documentation system with MDX support
-- **Todos Feature** - Full-stack todo management with create, toggle, and delete operations (kidding, just a CRUD demo)
+- **Todo CRUD** - Full-stack create, read, update, and delete example
 - **GitHub Artifact Mirror** - Cache GitHub release artifacts locally and serve them via `/api/mirror`
+
+## Todo CRUD
+
+A minimal full-stack CRUD example at `/todos`: create, list, toggle completion, and delete items via tRPC and Prisma.
 
 ## GitHub Artifact Mirror
 
