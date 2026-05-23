@@ -34,6 +34,8 @@
   },
   "pnpm": {
     "overrides": {
+      "fast-uri": "3.1.2",
+      "kysely": "0.28.17",
       "lodash-es": "4.18.1"
     },
     "onlyBuiltDependencies": [
