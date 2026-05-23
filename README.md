@@ -1,4 +1,4 @@
-# my-better-t-app
+# my sass template
 
 This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, TRPC, and more.
 

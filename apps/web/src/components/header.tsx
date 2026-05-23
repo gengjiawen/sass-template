@@ -42,7 +42,7 @@ export default function Header() {
             href="/"
             className="rounded-full px-2 py-1 text-sm font-semibold tracking-[0.16em] text-foreground/80 uppercase transition-colors hover:text-foreground"
           >
-            Better T
+            Sass
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {links.map(({ to, label }) => {
