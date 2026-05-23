@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 import {
   DropdownMenu,
@@ -16,6 +19,7 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 
 export default function UserMenu() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
 
@@ -26,7 +30,7 @@ export default function UserMenu() {
   if (!session) {
     return (
       <Link href="/login">
-        <Button variant="outline">Sign In</Button>
+        <Button variant="outline">{t('Sign In')}</Button>
       </Link>
     );
   }
@@ -38,7 +42,7 @@ export default function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-card">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('My Account')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
           <DropdownMenuItem
@@ -53,7 +57,7 @@ export default function UserMenu() {
               });
             }}
           >
-            Sign Out
+            {t('Sign Out')}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

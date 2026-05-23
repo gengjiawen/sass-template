@@ -1,5 +1,8 @@
+'use client';
+
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import z from 'zod';
 
@@ -11,6 +14,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 
 export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { isPending } = authClient.useSession();
 
@@ -30,7 +34,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
         {
           onSuccess: () => {
             router.push('/dashboard');
-            toast.success('Sign up successful');
+            toast.success(t('Sign up successful'));
           },
           onError: (error) => {
             toast.error(error.error.message || error.error.statusText);
@@ -40,9 +44,9 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
     },
     validators: {
       onSubmit: z.object({
-        name: z.string().min(2, 'Name must be at least 2 characters'),
-        email: z.email('Invalid email address'),
-        password: z.string().min(8, 'Password must be at least 8 characters'),
+        name: z.string().min(2, t('Name must be at least 2 characters')),
+        email: z.email(t('Invalid email address')),
+        password: z.string().min(8, t('Password must be at least 8 characters')),
       }),
     },
   });
@@ -53,7 +57,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
 
   return (
     <div className="mx-auto w-full mt-10 max-w-md p-6">
-      <h1 className="mb-6 text-center text-3xl font-bold">Create Account</h1>
+      <h1 className="mb-6 text-center text-3xl font-bold">{t('Create Account')}</h1>
 
       <form
         onSubmit={(e) => {
@@ -67,7 +71,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           <form.Field name="name">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name}>Name</Label>
+                <Label htmlFor={field.name}>{t('Name')}</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -89,7 +93,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           <form.Field name="email">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name}>Email</Label>
+                <Label htmlFor={field.name}>{t('Email')}</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -112,7 +116,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           <form.Field name="password">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name}>Password</Label>
+                <Label htmlFor={field.name}>{t('Password')}</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -138,7 +142,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
               className="w-full"
               disabled={!state.canSubmit || state.isSubmitting}
             >
-              {state.isSubmitting ? 'Submitting...' : 'Sign Up'}
+              {state.isSubmitting ? t('Submitting...') : t('Sign Up')}
             </Button>
           )}
         </form.Subscribe>
@@ -150,7 +154,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           onClick={onSwitchToSignIn}
           className="text-indigo-600 hover:text-indigo-800"
         >
-          Already have an account? Sign In
+          {t('Already have an account? Sign In')}
         </Button>
       </div>
     </div>

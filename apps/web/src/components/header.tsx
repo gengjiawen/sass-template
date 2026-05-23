@@ -2,25 +2,32 @@
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Route } from 'next';
 
 import { cn } from '@/lib/utils';
 
+import { LanguageToggle } from './language-toggle';
 import { ModeToggle } from './mode-toggle';
 import { Button } from './ui/button';
 import UserMenu from './user-menu';
 
 export default function Header() {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const links = [
-    { to: '/', label: 'Home' },
-    { to: '/dashboard', label: 'Dashboard' },
-    { to: '/todos', label: 'Todos' },
-    { to: '/docs', label: 'Docs' },
-  ] as const;
+  const links = useMemo(
+    () =>
+      [
+        { to: '/', label: t('Home') },
+        { to: '/dashboard', label: t('Dashboard') },
+        { to: '/todos', label: t('Todos') },
+        { to: '/docs', label: t('Docs') },
+      ] as const,
+    [t],
+  );
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -65,18 +72,20 @@ export default function Header() {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LanguageToggle />
           <ModeToggle />
           <UserMenu />
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
+          <LanguageToggle />
           <ModeToggle />
           <Button
             variant="outline"
             size="icon"
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-navigation"
-            aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={isMobileMenuOpen ? t('Close navigation menu') : t('Open navigation menu')}
             onClick={() => {
               setIsMobileMenuOpen((current) => !current);
             }}

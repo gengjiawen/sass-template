@@ -14,6 +14,7 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 - **Authentication** - Better-Auth
 - **Oxlint** - Oxlint + Oxfmt (linting & formatting)
 - **Fumadocs** - Beautiful documentation system with MDX support
+- **i18n** - Client-side `en-US` / `zh-CN` UI via i18next and Jotai, switchable from the header
 - **Todo CRUD** - Full-stack create, read, update, and delete example
 - **GitHub Artifact Mirror** - Cache GitHub release artifacts locally and serve them via `/api/mirror`
 

@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Loader2, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,6 +49,7 @@ function useTodos() {
 }
 
 export default function TodosPage() {
+  const { t } = useTranslation();
   const [newTodoText, setNewTodoText] = useState('');
   const { todos, isLoading, isCreating, isMutating, addTodo, toggleTodo, deleteTodo } = useTodos();
 
@@ -55,8 +57,8 @@ export default function TodosPage() {
     <div className="mx-auto w-full max-w-3xl py-10 px-4 sm:px-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Todo List</CardTitle>
-          <CardDescription className="text-base">Manage your tasks efficiently</CardDescription>
+          <CardTitle className="text-2xl">{t('Todo List')}</CardTitle>
+          <CardDescription className="text-base">{t('Manage your tasks efficiently')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -73,7 +75,7 @@ export default function TodosPage() {
             <Input
               value={newTodoText}
               onChange={(e) => setNewTodoText(e.target.value)}
-              placeholder="Add a new task..."
+              placeholder={t('Add a new task...')}
               disabled={isCreating}
               className="text-base py-6"
             />
@@ -82,7 +84,7 @@ export default function TodosPage() {
               disabled={isCreating || !newTodoText.trim()}
               className="px-8 py-6 text-base"
             >
-              {isCreating ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Add'}
+              {isCreating ? <Loader2 className="h-5 w-5 animate-spin" /> : t('Add')}
             </Button>
           </form>
 
@@ -92,7 +94,7 @@ export default function TodosPage() {
             </div>
           ) : todos.length === 0 ? (
             <p className="py-12 text-center text-lg text-muted-foreground">
-              No todos yet. Add one above!
+              {t('No todos yet. Add one above!')}
             </p>
           ) : (
             <ul className="space-y-3">
@@ -122,7 +124,7 @@ export default function TodosPage() {
                     variant="ghost"
                     size="icon"
                     onClick={() => deleteTodo(todo.id)}
-                    aria-label="Delete todo"
+                    aria-label={t('Delete todo')}
                     disabled={isMutating}
                     className="h-10 w-10"
                   >
