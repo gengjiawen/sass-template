@@ -17,6 +17,10 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 - **Todo CRUD** - Full-stack create, read, update, and delete example
 - **GitHub Artifact Mirror** - Cache GitHub release artifacts locally and serve them via `/api/mirror`
 
+## Fumadocs
+
+Documentation site at `/docs`, powered by Fumadocs. Add MDX pages under `apps/web/content/docs` — supports search, Mermaid diagrams, and OG images.
+
 ## Todo CRUD
 
 A minimal full-stack CRUD example at `/todos`: create, list, toggle completion, and delete items via tRPC and Prisma.
