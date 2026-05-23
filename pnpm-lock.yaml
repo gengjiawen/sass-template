@@ -21,9 +21,6 @@ catalogs:
     dotenv:
       specifier: ^17.4.2
       version: 17.4.2
-    next:
-      specifier: ^16.2.6
-      version: 16.2.6
     typescript:
       specifier: ^6
       version: 6.0.3
@@ -69,12 +66,12 @@ importers:
       '@base-ui/react':
         specifier: ^1.4.1
         version: 1.4.1(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@my-better-t-app/api':
-        specifier: workspace:*
-        version: link:../../packages/api
       '@my-better-t-app/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@my-better-t-app/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@my-better-t-app/env':
         specifier: workspace:*
         version: link:../../packages/env
@@ -175,40 +172,6 @@ importers:
       tailwindcss:
         specifier: ^4.2.4
         version: 4.2.4
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-
-  packages/api:
-    dependencies:
-      '@my-better-t-app/auth':
-        specifier: workspace:*
-        version: link:../auth
-      '@my-better-t-app/db':
-        specifier: workspace:*
-        version: link:../db
-      '@my-better-t-app/env':
-        specifier: workspace:*
-        version: link:../env
-      '@trpc/client':
-        specifier: 'catalog:'
-        version: 11.17.0(@trpc/server@11.17.0(typescript@6.0.3))(typescript@6.0.3)
-      '@trpc/server':
-        specifier: 'catalog:'
-        version: 11.17.0(typescript@6.0.3)
-      dotenv:
-        specifier: 'catalog:'
-        version: 17.4.2
-      next:
-        specifier: 'catalog:'
-        version: 16.2.6(@babel/core@7.29.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      zod:
-        specifier: 'catalog:'
-        version: 4.4.1
-    devDependencies:
-      '@my-better-t-app/config':
-        specifier: workspace:*
-        version: link:../config
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

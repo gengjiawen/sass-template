@@ -1,14 +1,14 @@
-import { createContext } from '@my-better-t-app/api/context';
-import { appRouter } from '@my-better-t-app/api/routers/index';
+import { createContext } from '@/server/api/context';
+import { appRouter } from '@/server/api/root';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 function handler(req: NextRequest) {
   return fetchRequestHandler({
     endpoint: '/api/trpc',
     req,
     router: appRouter,
-    createContext: () => createContext(req),
+    createContext: () => createContext(req.headers),
   });
 }
 export { handler as GET, handler as POST };
