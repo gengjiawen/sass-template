@@ -23,7 +23,9 @@ A minimal full-stack CRUD example at `/todos`: create, list, toggle completion, 
 
 ## GitHub Artifact Mirror
 
-Cache GitHub release artifacts and serve them via `/api/mirror`. First request fetches from GitHub; later requests use local cache. Optional `GITHUB_MIRROR_DOWNLOAD_DIR` sets the cache path. Some regions may have restricted GitHub access — see [os-init Mihomo setup](https://github.com/gengjiawen/os-init#generate-mihomo-config) if needed.
+Cache GitHub release artifacts and serve them via `/api/mirror`. First request fetches from GitHub; later requests use local cache. Optional `GITHUB_MIRROR_DOWNLOAD_DIR` sets the cache path.
+
+Note: Some regions may have restricted GitHub access — see [os-init Mihomo setup](https://github.com/gengjiawen/os-init#generate-mihomo-config) if needed.
 
 ```bash
 curl -OJ "http://localhost:3000/api/mirror/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-i686-pc-windows-msvc.zip"
