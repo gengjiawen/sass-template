@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'my-better-t-app',
-  description: 'my-better-t-app',
+  title: 'Sass Template',
+  description: 'A modern SaaS template built with Next.js, tRPC, Prisma, and Better-Auth',
 }
 
 export default function RootLayout({
