@@ -8,4 +8,4 @@ catalog:
   "@prisma/client": ^7.8.0
   "@trpc/server": ^11.17.0
   "@trpc/client": ^11.17.0
-  better-auth: ^1.6.9
+  better-auth: ^1.6.13
