@@ -23,6 +23,7 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 - **i18n** - Client-side `en-US` / `zh-CN` UI via i18next and Jotai, switchable from the header
 - **Todo CRUD** - Full-stack create, read, update, and delete example
 - **GitHub Artifact Mirror** - Cache GitHub release artifacts locally and serve them via `/api/mirror`
+- **NSSurge Collector** - Capture Surge HTTP traffic (see below)
 
 ## Fumadocs
 
@@ -41,3 +42,7 @@ Note: Some regions may have restricted GitHub access — see [os-init Mihomo set
 ```bash
 curl -OJ "http://localhost:3000/api/mirror/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-i686-pc-windows-msvc.zip"
 ```
+
+## NSSurge Collector
+
+Surge scripts POST HTTP request/response events (text bodies only) to `/api/nssurge` for Prisma storage. Browse traffic and generate `.sgmodule` files at `/nssurge`. Binary bodies are skipped.

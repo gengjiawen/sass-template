@@ -1,0 +1,43 @@
+enum NssurgeEventType {
+  request
+  response
+}
+
+enum NssurgeBodyKind {
+  none
+  text
+  binary_skipped
+  too_large_skipped
+  decode_failed_skipped
+}
+
+model NssurgeHttpEvent {
+  id                  Int               @id @default(autoincrement())
+  surgeRequestId      String
+  eventType           NssurgeEventType
+  capturedAtMs        BigInt
+  receivedAtMs        BigInt
+  scriptName          String?
+  method              String?
+  url                 String
+  host                String?
+  requestHeadersJson  String?
+  responseStatus      Int?
+  responseHeadersJson String?
+  contentType         String?
+  bodyKind            NssurgeBodyKind   @default(none)
+  bodyText            String?
+  bodyByteLength      BigInt?
+  bodySkippedReason   String?
+  rawJson             String
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@unique([surgeRequestId, eventType])
+  @@index([capturedAtMs])
+  @@index([host])
+  @@index([url])
+  @@index([eventType])
+  @@index([responseStatus])
+  @@map("nssurge_http_events")
+}

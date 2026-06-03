@@ -35,6 +35,20 @@ tRPC lives in `apps/web/src/server/api/` (not a separate `packages/api` package)
 - Usage: `useTranslation()` and `t('Key')`; avoid hardcoded UI text in components.
 - Language switcher is in the header (`LanguageToggle`). Docs content (`/docs`) is English-only for now.
 
+### README conventions
+
+- **Language**: English only.
+- **Scope**: Feature sections describe what the feature does, not setup steps, env walkthroughs, curl recipes, or operational runbooks.
+- **Length**: Keep each feature `##` section to about **100 words** or less (one short paragraph). Put a one-line summary in **Features** with “see below” when needed.
+- **Detail elsewhere**: Implementation and agent workflow live in `AGENTS.md` and `plan/`; do not duplicate long docs in `README.md`.
+
+### NSSurge Collector
+
+- Routes: `POST/GET/DELETE /api/nssurge`; dashboard `/nssurge`; Surge scripts `/nssurge/log-request.js`, `/nssurge/log-response.js`.
+- Code: `apps/web/src/lib/nssurge/`, `apps/web/src/app/api/nssurge/route.ts`, `packages/db/prisma/schema/nssurge.prisma`.
+- Env: `NSSURGE_COLLECTOR_TOKEN`, `NSSURGE_MAX_EVENT_BYTES` (see `.env.example`). Uses existing `DATABASE_URL` via Prisma — no separate SQLite file.
+- Spec: `plan/nssurge-collector.md`.
+
 ### Fumadocs conventions
 
 - Docs route: `/docs`; site nav title is `docs`.
@@ -54,3 +68,4 @@ tRPC lives in `apps/web/src/server/api/` (not a separate `packages/api` package)
 - **Postinstall** in `apps/web` runs `fumadocs-mdx`, `prisma generate`, and `prisma migrate deploy` automatically — no manual DB setup needed after `pnpm install`.
 - **Environment**: `.env` at project root provides all required vars with dev defaults. No secrets needed for local development.
 - **GitHub Artifact Mirror**: `/api/mirror`; optional env `GITHUB_MIRROR_DOWNLOAD_DIR` for cache path.
+- **Node.js**: Use system Node (`/usr/local/bin`, v22+) for `pnpm`, Prisma, and builds — not Cursor’s bundled Node (v20), which breaks pnpm/Prisma.
