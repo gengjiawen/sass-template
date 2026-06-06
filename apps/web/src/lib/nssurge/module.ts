@@ -14,19 +14,46 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+/** Strip URL scheme, path, and trailing slashes; keep optional `*.` prefix and non-default port. */
+function parseDomainHost(raw: string): string {
+  let value = raw.trim()
+  if (!value) return ''
+
+  let wildcardPrefix = ''
+  if (value.startsWith('*.')) {
+    wildcardPrefix = '*.'
+    value = value.slice(2).trim()
+  }
+
+  if (/^https?:\/\//i.test(value)) {
+    try {
+      const url = new URL(value)
+      const defaultPort = url.protocol === 'https:' ? '443' : '80'
+      const port = url.port && url.port !== defaultPort ? `:${url.port}` : ''
+      return `${wildcardPrefix}${url.hostname}${port}`
+    } catch {
+      // fall through to manual stripping
+    }
+  }
+
+  const slash = value.indexOf('/')
+  if (slash !== -1) {
+    value = value.slice(0, slash)
+  }
+
+  return `${wildcardPrefix}${value.replace(/\/+$/, '')}`
+}
+
 function parseDomains(input: string): string[] {
   return input
     .split(/[\n,]+/)
-    .map((d) => d.trim())
+    .map((d) => parseDomainHost(d))
     .filter(Boolean)
 }
 
 function normalizeDomainToken(raw: string): { patternHost: string; mitmHost: string } {
-  const trimmed = raw.trim()
-  if (trimmed.startsWith('*.')) {
-    return { patternHost: trimmed, mitmHost: trimmed }
-  }
-  return { patternHost: trimmed, mitmHost: trimmed }
+  const host = parseDomainHost(raw)
+  return { patternHost: host, mitmHost: host }
 }
 
 function buildUrlPattern(
@@ -77,7 +104,9 @@ function buildMitmHostname(domains: string[], includeSubdomains: boolean): strin
 export function generateSurgeModule(
   input: GenerateModuleOptions & { domainsInput: string },
 ): string {
-  const domains = input.domains.length > 0 ? input.domains : parseDomains(input.domainsInput)
+  const domains = (input.domains.length > 0 ? input.domains : parseDomains(input.domainsInput))
+    .map(parseDomainHost)
+    .filter(Boolean)
   if (domains.length === 0) {
     throw new Error('At least one domain is required')
   }
@@ -123,4 +152,4 @@ export function generateSurgeModule(
   return `${lines.join('\n')}\n`
 }
 
-export { parseDomains }
+export { parseDomainHost, parseDomains }

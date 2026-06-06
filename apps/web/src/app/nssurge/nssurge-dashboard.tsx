@@ -14,6 +14,9 @@ import { cn } from '@/lib/utils'
 
 const LIMIT_OPTIONS = [100, 200, 500, 1000] as const
 
+const EXCHANGE_LIST_GRID =
+  'grid grid-cols-[4.5rem_4rem_minmax(0,1fr)_3rem_4.5rem] items-center gap-x-3'
+
 type ExchangesResponse = {
   view: string
   items: NssurgeExchange[]
@@ -27,6 +30,24 @@ type NssurgeDashboardProps = {
 function formatTime(ms: number | null, empty = '—'): string {
   if (ms == null) return empty
   return new Date(ms).toLocaleString()
+}
+
+function formatTimeHms(ms: number | null, empty = '—'): string {
+  if (ms == null) return empty
+  const d = new Date(ms)
+  const h = String(d.getHours()).padStart(2, '0')
+  const m = String(d.getMinutes()).padStart(2, '0')
+  const s = String(d.getSeconds()).padStart(2, '0')
+  return `${h}:${m}:${s}`
+}
+
+function formatDuration(requestMs: number | null, responseMs: number | null, empty = '—'): string {
+  if (requestMs == null || responseMs == null) return empty
+  const delta = responseMs - requestMs
+  if (delta < 0) return empty
+  if (delta < 1000) return `${delta}ms`
+  if (delta < 60_000) return `${(delta / 1000).toFixed(1)}s`
+  return `${(delta / 60_000).toFixed(1)}m`
 }
 
 function statusClass(status: number | null): string {
@@ -96,6 +117,25 @@ function BodyPanel({
   )
 }
 
+function ExchangeListHeader() {
+  const { t } = useTranslation()
+
+  return (
+    <div
+      className={cn(
+        EXCHANGE_LIST_GRID,
+        'border-b border-border/60 bg-muted/30 px-3 py-1.5 text-xs font-medium text-muted-foreground',
+      )}
+    >
+      <span>{t('ID')}</span>
+      <span>{t('Time')}</span>
+      <span>{t('URL')}</span>
+      <span className="text-right">{t('Status')}</span>
+      <span className="text-right">{t('Duration')}</span>
+    </div>
+  )
+}
+
 function ExchangeRow({
   exchange,
   expanded,
@@ -112,27 +152,34 @@ function ExchangeRow({
   const { t } = useTranslation()
   const data = detail ?? exchange
   const empty = t('—')
+  const capturedAtMs = data.responseCapturedAtMs ?? data.requestCapturedAtMs
 
   return (
     <div className="border-b border-border/60">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full flex-col gap-1 px-3 py-2 text-left text-sm hover:bg-muted/40 sm:flex-row sm:items-center sm:gap-3"
+        title={data.url}
+        className={cn(EXCHANGE_LIST_GRID, 'w-full px-3 py-2 text-left text-sm hover:bg-muted/40')}
       >
-        <span className="shrink-0 font-mono text-xs font-semibold">{data.method ?? empty}</span>
+        <span
+          className="truncate font-mono text-xs tabular-nums text-muted-foreground"
+          title={data.surgeRequestId}
+        >
+          {data.surgeRequestId}
+        </span>
+        <span className="font-mono text-xs tabular-nums">{formatTimeHms(capturedAtMs, empty)}</span>
+        <span className="min-w-0 truncate font-mono text-xs">{data.url}</span>
         <span
           className={cn(
-            'shrink-0 font-mono text-xs font-semibold',
+            'text-right font-mono text-xs font-semibold tabular-nums',
             statusClass(data.responseStatus),
           )}
         >
           {data.responseStatus ?? empty}
         </span>
-        <span className="min-w-0 flex-1 truncate font-mono text-xs">{data.url}</span>
-        <span className="shrink-0 text-xs text-muted-foreground">{data.host ?? empty}</span>
-        <span className="shrink-0 text-xs text-muted-foreground">
-          {formatTime(data.responseCapturedAtMs ?? data.requestCapturedAtMs, empty)}
+        <span className="text-right font-mono text-xs tabular-nums text-muted-foreground">
+          {formatDuration(data.requestCapturedAtMs, data.responseCapturedAtMs, empty)}
         </span>
       </button>
       {expanded && (
@@ -465,6 +512,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                     {t('No exchanges yet. POST events via Surge or curl.')}
                   </p>
                 )}
+                {items.length > 0 && <ExchangeListHeader />}
                 {items.map((item) => (
                   <ExchangeRow
                     key={item.surgeRequestId}
