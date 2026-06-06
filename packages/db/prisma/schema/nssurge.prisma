@@ -13,6 +13,8 @@ enum NssurgeBodyKind {
 
 model NssurgeHttpEvent {
   id                  Int               @id @default(autoincrement())
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   surgeRequestId      String
   eventType           NssurgeEventType
   capturedAtMs        BigInt
@@ -33,7 +35,8 @@ model NssurgeHttpEvent {
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
-  @@unique([surgeRequestId, eventType])
+  @@unique([userId, surgeRequestId, eventType])
+  @@index([userId])
   @@index([capturedAtMs])
   @@index([host])
   @@index([url])

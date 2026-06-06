@@ -24,7 +24,6 @@ function parseDomains(input: string): string[] {
 function normalizeDomainToken(raw: string): { patternHost: string; mitmHost: string } {
   const trimmed = raw.trim()
   if (trimmed.startsWith('*.')) {
-    const base = trimmed.slice(2)
     return { patternHost: trimmed, mitmHost: trimmed }
   }
   return { patternHost: trimmed, mitmHost: trimmed }

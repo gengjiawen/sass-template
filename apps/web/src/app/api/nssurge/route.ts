@@ -1,4 +1,9 @@
-import { authorizeCollectorRequest, getCollectorToken, getMaxEventBytes } from '@/lib/nssurge/auth'
+import {
+  authorizeNssurgeDeleteRequest,
+  authorizeNssurgeReadRequest,
+  authorizeNssurgeWriteRequest,
+  MAX_NSSURGE_EVENT_BYTES,
+} from '@/lib/nssurge/auth'
 import {
   clearNssurgeEvents,
   insertNssurgeEvent,
@@ -29,16 +34,18 @@ function parseStatus(value: string | null): number | undefined {
 }
 
 export async function POST(request: Request) {
-  const authError = authorizeCollectorRequest(request, { required: false })
-  if (authError) return authError
+  const access = await authorizeNssurgeWriteRequest(request)
+  if (access instanceof Response) return access
 
   try {
     const rawText = await request.text()
-    const maxBytes = getMaxEventBytes()
     const byteLength = new TextEncoder().encode(rawText).byteLength
 
-    if (byteLength > maxBytes) {
-      return Response.json({ error: `Payload exceeds ${maxBytes} bytes` }, { status: 413 })
+    if (byteLength > MAX_NSSURGE_EVENT_BYTES) {
+      return Response.json(
+        { error: `Payload exceeds ${MAX_NSSURGE_EVENT_BYTES} bytes` },
+        { status: 413 },
+      )
     }
 
     let parsed: unknown
@@ -57,7 +64,7 @@ export async function POST(request: Request) {
     }
 
     const normalized = normalizeNssurgeEvent(result.data)
-    await insertNssurgeEvent(normalized)
+    await insertNssurgeEvent(access.userId, normalized)
 
     return new Response(null, { status: 204 })
   } catch (error) {
@@ -67,8 +74,8 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const authError = authorizeCollectorRequest(request, { required: false })
-  if (authError) return authError
+  const access = await authorizeNssurgeReadRequest(request)
+  if (access instanceof Response) return access
 
   const { searchParams } = new URL(request.url)
   const view = searchParams.get('view') === 'events' ? 'events' : 'exchanges'
@@ -87,13 +94,14 @@ export async function GET(request: Request) {
       const eventType = searchParams.get('eventType')
       const data = await listNssurgeEvents({
         ...params,
+        userId: access.userId,
         eventType: eventType === 'request' || eventType === 'response' ? eventType : undefined,
       })
       return Response.json({ view, items: data })
     }
 
     const surgeRequestId = searchParams.get('surgeRequestId') ?? undefined
-    const data = await listNssurgeExchanges({ ...params, surgeRequestId })
+    const data = await listNssurgeExchanges({ ...params, userId: access.userId, surgeRequestId })
     return Response.json({ view, items: data })
   } catch (error) {
     console.error('[nssurge] GET failed', error)
@@ -102,12 +110,8 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!getCollectorToken()) {
-    return Response.json({ error: 'Collector token not configured' }, { status: 503 })
-  }
-
-  const authError = authorizeCollectorRequest(request, { required: true })
-  if (authError) return authError
+  const access = await authorizeNssurgeDeleteRequest(request)
+  if (access instanceof Response) return access
 
   const { searchParams } = new URL(request.url)
   const all = searchParams.get('all') === 'true'
@@ -119,7 +123,7 @@ export async function DELETE(request: Request) {
   }
 
   try {
-    const deletedCount = await clearNssurgeEvents({ all, olderThanDays })
+    const deletedCount = await clearNssurgeEvents({ userId: access.userId, all, olderThanDays })
     return Response.json({ ok: true, deletedCount })
   } catch (error) {
     console.error('[nssurge] DELETE failed', error)

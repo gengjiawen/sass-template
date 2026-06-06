@@ -13,6 +13,7 @@ type NssurgeEventType = 'request' | 'response'
 type NssurgeHttpEvent = Awaited<ReturnType<typeof prisma.nssurgeHttpEvent.findMany>>[number]
 
 export type ListEventsParams = {
+  userId: string
   limit?: number
   host?: string
   eventType?: 'request' | 'response'
@@ -23,6 +24,7 @@ export type ListEventsParams = {
 }
 
 export type ListExchangesParams = {
+  userId: string
   limit?: number
   host?: string
   status?: number
@@ -60,13 +62,14 @@ function clampLimit(limit: number | undefined): number {
 }
 
 function buildEventWhere(params: {
+  userId: string
   host?: string
   eventType?: NssurgeEventType
   status?: number
   since?: number
   q?: string
 }): Record<string, unknown> {
-  const and: Record<string, unknown>[] = []
+  const and: Record<string, unknown>[] = [{ userId: params.userId }]
 
   if (params.since != null) {
     and.push({ capturedAtMs: { gte: BigInt(params.since) } })
@@ -92,7 +95,6 @@ function buildEventWhere(params: {
     and.push({ eventType: 'response', responseStatus: params.status })
   }
 
-  if (and.length === 0) return {}
   if (and.length === 1) return and[0]!
   return { AND: and }
 }
@@ -151,15 +153,17 @@ function eventToExchangePart(event: NssurgeHttpEvent, withBody: boolean): Partia
   }
 }
 
-export async function insertNssurgeEvent(event: NormalizedNssurgeEvent) {
+export async function insertNssurgeEvent(userId: string, event: NormalizedNssurgeEvent) {
   return prisma.nssurgeHttpEvent.upsert({
     where: {
-      surgeRequestId_eventType: {
+      userId_surgeRequestId_eventType: {
+        userId,
         surgeRequestId: event.surgeRequestId,
         eventType: event.eventType,
       },
     },
     create: {
+      userId,
       surgeRequestId: event.surgeRequestId,
       eventType: event.eventType,
       capturedAtMs: event.capturedAtMs,
@@ -201,6 +205,7 @@ export async function insertNssurgeEvent(event: NormalizedNssurgeEvent) {
 export async function listNssurgeEvents(params: ListEventsParams) {
   const limit = clampLimit(params.limit)
   const where = buildEventWhere({
+    userId: params.userId,
     host: params.host,
     eventType: params.eventType,
     status: params.status,
@@ -222,7 +227,7 @@ export async function listNssurgeExchanges(
 ): Promise<NssurgeExchange[]> {
   if (params.surgeRequestId) {
     const events = await prisma.nssurgeHttpEvent.findMany({
-      where: { surgeRequestId: params.surgeRequestId },
+      where: { userId: params.userId, surgeRequestId: params.surgeRequestId },
     })
     if (events.length === 0) return []
     const req = events.find((e) => e.eventType === 'request')
@@ -257,6 +262,7 @@ export async function listNssurgeExchanges(
   const fetchLimit = Math.min(limit * 4, 4000)
 
   const baseWhere = buildEventWhere({
+    userId: params.userId,
     host: params.host,
     since: params.since,
     q: params.q,
@@ -324,16 +330,20 @@ export async function listNssurgeExchanges(
   return exchangesWithSort.slice(0, limit).map((item) => item.exchange)
 }
 
-export async function clearNssurgeEvents(params: { all?: boolean; olderThanDays?: number }) {
+export async function clearNssurgeEvents(params: {
+  userId: string
+  all?: boolean
+  olderThanDays?: number
+}) {
   if (params.all) {
-    const result = await prisma.nssurgeHttpEvent.deleteMany({})
+    const result = await prisma.nssurgeHttpEvent.deleteMany({ where: { userId: params.userId } })
     return result.count
   }
 
   if (params.olderThanDays != null && params.olderThanDays > 0) {
     const cutoff = BigInt(Date.now() - params.olderThanDays * 24 * 60 * 60 * 1000)
     const result = await prisma.nssurgeHttpEvent.deleteMany({
-      where: { capturedAtMs: { lt: cutoff } },
+      where: { userId: params.userId, capturedAtMs: { lt: cutoff } },
     })
     return result.count
   }

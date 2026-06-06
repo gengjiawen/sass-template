@@ -45,4 +45,4 @@ curl -OJ "http://localhost:3000/api/mirror/BurntSushi/ripgrep/releases/download/
 
 ## NSSurge Collector
 
-Surge scripts POST HTTP request/response events (text bodies only) to `/api/nssurge` for Prisma storage. Browse traffic and generate `.sgmodule` files at `/nssurge`. Binary bodies are skipped.
+Surge scripts POST HTTP request/response events (text bodies only) to `/api/nssurge` for Prisma storage. Browse traffic and generate `.sgmodule` files at `/nssurge`; local development can run without a token, while production uses each user's API token. Binary bodies are skipped.

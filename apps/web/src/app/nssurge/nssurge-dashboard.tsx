@@ -11,12 +11,16 @@ import { generateSurgeModule, parseDomains } from '@/lib/nssurge/module'
 import type { NssurgeExchange } from '@/lib/nssurge/repository'
 import { cn } from '@/lib/utils'
 
-const TOKEN_STORAGE_KEY = 'nssurge.collector.token'
 const LIMIT_OPTIONS = [100, 200, 500, 1000] as const
 
 type ExchangesResponse = {
   view: string
   items: NssurgeExchange[]
+}
+
+type NssurgeDashboardProps = {
+  apiToken: string
+  isAuthenticated: boolean
 }
 
 function formatTime(ms: number | null): string {
@@ -170,7 +174,7 @@ function ExchangeRow({
   )
 }
 
-export default function NssurgeDashboard() {
+export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeDashboardProps) {
   const [origin, setOrigin] = useState('')
   const [items, setItems] = useState<NssurgeExchange[]>([])
   const [loading, setLoading] = useState(false)
@@ -189,7 +193,6 @@ export default function NssurgeDashboard() {
   const [protocol, setProtocol] = useState<'https' | 'http' | 'both'>('https')
   const [collectorEndpoint, setCollectorEndpoint] = useState('')
   const [scriptBaseUrl, setScriptBaseUrl] = useState('')
-  const [token, setToken] = useState('')
   const [maxSize, setMaxSize] = useState(1_048_576)
   const [timeoutSeconds, setTimeoutSeconds] = useState(1)
   const [enableMitm, setEnableMitm] = useState(true)
@@ -200,13 +203,7 @@ export default function NssurgeDashboard() {
     setOrigin(base)
     setCollectorEndpoint(`${base}/api/nssurge`)
     setScriptBaseUrl(`${base}/nssurge`)
-    const stored = localStorage.getItem(TOKEN_STORAGE_KEY)
-    if (stored) setToken(stored)
   }, [])
-
-  useEffect(() => {
-    if (token) localStorage.setItem(TOKEN_STORAGE_KEY, token)
-  }, [token])
 
   const isLocalhost = useMemo(() => {
     try {
@@ -253,10 +250,7 @@ export default function NssurgeDashboard() {
       if (statusFilter) params.set('status', statusFilter)
       if (q) params.set('q', q)
 
-      const headers: HeadersInit = {}
-      if (token) headers.Authorization = `Bearer ${token}`
-
-      const res = await fetch(`/api/nssurge?${params}`, { headers })
+      const res = await fetch(`/api/nssurge?${params}`)
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error ?? `HTTP ${res.status}`)
@@ -268,32 +262,27 @@ export default function NssurgeDashboard() {
     } finally {
       setLoading(false)
     }
-  }, [hostFilter, limit, q, statusFilter, token])
+  }, [hostFilter, limit, q, statusFilter])
 
-  const fetchExchangeDetail = useCallback(
-    async (surgeRequestId: string) => {
-      setLoadingDetailId(surgeRequestId)
-      try {
-        const params = new URLSearchParams({
-          view: 'exchanges',
-          withBody: 'true',
-          surgeRequestId,
-        })
-        const headers: HeadersInit = {}
-        if (token) headers.Authorization = `Bearer ${token}`
-        const res = await fetch(`/api/nssurge?${params}`, { headers })
-        if (!res.ok) return
-        const data = (await res.json()) as ExchangesResponse
-        const match = data.items.find((i) => i.surgeRequestId === surgeRequestId)
-        if (match) {
-          setDetailById((prev) => ({ ...prev, [surgeRequestId]: match }))
-        }
-      } finally {
-        setLoadingDetailId(null)
+  const fetchExchangeDetail = useCallback(async (surgeRequestId: string) => {
+    setLoadingDetailId(surgeRequestId)
+    try {
+      const params = new URLSearchParams({
+        view: 'exchanges',
+        withBody: 'true',
+        surgeRequestId,
+      })
+      const res = await fetch(`/api/nssurge?${params}`)
+      if (!res.ok) return
+      const data = (await res.json()) as ExchangesResponse
+      const match = data.items.find((i) => i.surgeRequestId === surgeRequestId)
+      if (match) {
+        setDetailById((prev) => ({ ...prev, [surgeRequestId]: match }))
       }
-    },
-    [token],
-  )
+    } finally {
+      setLoadingDetailId(null)
+    }
+  }, [])
 
   useEffect(() => {
     if (!origin) return
@@ -324,7 +313,7 @@ export default function NssurgeDashboard() {
       domains,
       includeSubdomains,
       collectorEndpoint,
-      token,
+      token: apiToken,
       scriptBaseUrl,
       maxSize,
       timeoutSeconds,
@@ -337,6 +326,11 @@ export default function NssurgeDashboard() {
   const handleCopyModule = async () => {
     if (!moduleText) return
     await navigator.clipboard.writeText(moduleText)
+  }
+
+  const handleCopyApiToken = async () => {
+    if (!apiToken) return
+    await navigator.clipboard.writeText(apiToken)
   }
 
   const handleDownloadModule = () => {
@@ -359,6 +353,13 @@ export default function NssurgeDashboard() {
           <code className="text-xs">/api/nssurge</code>.
         </p>
       </div>
+
+      {!isAuthenticated && (
+        <div className="rounded border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
+          Local development mode is using an internal NSSurge dev user. Sign in to generate a
+          user-specific API token.
+        </div>
+      )}
 
       {isLocalhost && (
         <div className="rounded border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
@@ -527,8 +528,25 @@ export default function NssurgeDashboard() {
               />
             </div>
             <div>
-              <Label htmlFor="token">Token (localStorage)</Label>
-              <Input id="token" value={token} onChange={(e) => setToken(e.target.value)} />
+              <Label htmlFor="token">API token</Label>
+              <div className="mt-1 flex gap-2">
+                <Input
+                  id="token"
+                  value={apiToken}
+                  readOnly
+                  placeholder="Optional on local development"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => void handleCopyApiToken()}
+                  disabled={!apiToken}
+                  title="Copy API token"
+                >
+                  <Copy />
+                </Button>
+              </div>
             </div>
             <div>
               <Label htmlFor="maxSize">Max body size</Label>

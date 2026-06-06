@@ -159,11 +159,11 @@ export const dynamic = 'force-dynamic'
 
 #### 鉴权
 
-1. 支持 `Authorization: Bearer <token>`
-2. token 从 `process.env.NSSURGE_COLLECTOR_TOKEN` 读取
-3. 如果 token **设置了**，POST 必须校验
-4. 如果 token **没设置**，development 允许，但 `console.warn` 提醒
-5. 如果 token **没设置**，production 必须拒绝
+1. 支持 `Authorization: Bearer <user-api-token>`
+2. token 来自注册用户的 `User.apiToken`，不是全局 env
+3. production 的 POST 必须校验用户 API token，并写入该用户名下
+4. development 没有 token 时允许写入内部 `nssurge-dev-user`
+5. GET/DELETE 在 production 支持登录 session 或用户 API token，并且只操作当前用户数据
 6. 不要泄露内部 stack trace
 
 #### 请求体处理
@@ -172,7 +172,7 @@ export const dynamic = 'force-dynamic'
 2. 先 `await request.text()`
 3. 检查 event JSON payload 大小
 4. 默认最大 4MB
-5. 支持 env 覆盖：`NSSURGE_MAX_EVENT_BYTES=4194304`
+5. 上限使用代码常量，不从 env 覆盖
 6. 超过限制返回 `413`
 7. `JSON.parse` 后用 zod 校验
 8. 如果 payload 里出现 `body.base64`、`body.sha256` 等非法 body 编码字段，要忽略并且不要写进 `rawJson`
@@ -308,8 +308,8 @@ Query 参数：
 
 要求：
 
-1. 删除接口**必须**校验 token
-2. `all=true` 时清空 `NssurgeHttpEvent`
+1. 删除接口**必须**校验登录 session 或用户 API token
+2. `all=true` 时清空当前用户的 `NssurgeHttpEvent`
 3. `olderThanDays=7` 时删除 7 天以前的数据
 4. 删除后返回 JSON：`{ ok: true, deletedCount }`
 
@@ -367,7 +367,7 @@ Next.js 启动后可访问：
 1. 不使用 Node.js API
 2. 不使用 Buffer
 3. 支持 `$argument` 解析：  
-   `endpoint=http%3A%2F%2F192.168.1.23%3A3000%2Fapi%2Fnssurge&token=dev-token`
+   `endpoint=http%3A%2F%2F192.168.1.23%3A3000%2Fapi%2Fnssurge&token=<user-api-token>`
 4. 如果没有 endpoint，默认：`http://127.0.0.1:3000/api/nssurge`
 5. 如果 request URL 包含 `/api/nssurge`，直接 `$done({})`，避免递归
 6. collector POST 失败不能影响原请求/响应
@@ -450,8 +450,8 @@ Next.js 启动后可访问：
 #!desc=Capture text request/response bodies to local Next.js + Prisma collector. Binary bodies are skipped.
 
 [Script]
-nssurge-api-example-com-request = type=http-request, pattern=^https:\/\/api\.example\.com\/, requires-body=true, binary-body-mode=true, max-size=1048576, timeout=1, script-path=http://192.168.1.23:3000/nssurge/log-request.js, argument=endpoint=http%3A%2F%2F192.168.1.23%3A3000%2Fapi%2Fnssurge&token=dev-token
-nssurge-api-example-com-response = type=http-response, pattern=^https:\/\/api\.example\.com\/, requires-body=true, binary-body-mode=true, max-size=1048576, timeout=1, script-path=http://192.168.1.23:3000/nssurge/log-response.js, argument=endpoint=http%3A%2F%2F192.168.1.23%3A3000%2Fapi%2Fnssurge&token=dev-token
+nssurge-api-example-com-request = type=http-request, pattern=^https:\/\/api\.example\.com\/, requires-body=true, binary-body-mode=true, max-size=1048576, timeout=1, script-path=http://192.168.1.23:3000/nssurge/log-request.js, argument=endpoint=http%3A%2F%2F192.168.1.23%3A3000%2Fapi%2Fnssurge&token=<user-api-token>
+nssurge-api-example-com-response = type=http-response, pattern=^https:\/\/api\.example\.com\/, requires-body=true, binary-body-mode=true, max-size=1048576, timeout=1, script-path=http://192.168.1.23:3000/nssurge/log-response.js, argument=endpoint=http%3A%2F%2F192.168.1.23%3A3000%2Fapi%2Fnssurge&token=<user-api-token>
 
 [MITM]
 hostname = %APPEND% api.example.com
@@ -489,17 +489,17 @@ hostname = %APPEND% api.example.com
 
 ### Generate Surge Module 表单
 
-| 字段               | 默认                               |
-| ------------------ | ---------------------------------- |
-| Domains textarea   | `api.example.com`                  |
-| Include subdomains | checkbox                           |
-| Protocol           | https / http / both，默认 https    |
-| Collector endpoint | `${location.origin}/api/nssurge`   |
-| Script base URL    | `${location.origin}/nssurge`       |
-| Token              | localStorage，不从 server env 泄露 |
-| Max body size      | 1048576                            |
-| Timeout            | 1                                  |
-| Enable MITM        | true，默认勾选                     |
+| 字段               | 默认                                           |
+| ------------------ | ---------------------------------------------- |
+| Domains textarea   | `api.example.com`                              |
+| Include subdomains | checkbox                                       |
+| Protocol           | https / http / both，默认 https                |
+| Collector endpoint | `${location.origin}/api/nssurge`               |
+| Script base URL    | `${location.origin}/nssurge`                   |
+| Token              | 当前登录用户的专属 API token；本地未登录可为空 |
+| Max body size      | 1048576                                        |
+| Timeout            | 1                                              |
+| Enable MITM        | true，默认勾选                                 |
 
 生成后：显示 `.sgmodule` 文本、Copy、Download（Blob 前端下载）。
 
@@ -513,15 +513,8 @@ hostname = %APPEND% api.example.com
 
 ## 环境变量
 
-`.env.example`（或 `apps/web/.env.example`）增加：
-
-```env
-NSSURGE_COLLECTOR_TOKEN=dev-token
-NSSURGE_MAX_EVENT_BYTES=4194304
-```
-
+- 不新增 NSSurge 专用 env；数据库继续使用 `DATABASE_URL`
 - **不要**新增 `NSSURGE_DB_PATH`
-- 数据库继续使用 `DATABASE_URL`
 
 ---
 
@@ -542,7 +535,7 @@ NSSURGE_MAX_EVENT_BYTES=4194304
 
 ```bash
 curl -X DELETE "http://localhost:3000/api/nssurge?all=true" \
-  -H "Authorization: Bearer dev-token"
+  -H "Authorization: Bearer <user-api-token>"
 ```
 
 ---
@@ -553,7 +546,7 @@ curl -X DELETE "http://localhost:3000/api/nssurge?all=true" \
 
 ```bash
 curl -X POST "http://localhost:3000/api/nssurge" \
-  -H "Authorization: Bearer dev-token" \
+  -H "Authorization: Bearer <user-api-token>" \
   -H "Content-Type: application/json" \
   --data '{
     "source": "nssurge",
@@ -589,7 +582,7 @@ curl -X POST "http://localhost:3000/api/nssurge" \
 
 ```bash
 curl -X POST "http://localhost:3000/api/nssurge" \
-  -H "Authorization: Bearer dev-token" \
+  -H "Authorization: Bearer <user-api-token>" \
   -H "Content-Type: application/json" \
   --data '{
     "source": "nssurge",
