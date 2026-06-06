@@ -2,6 +2,7 @@
 
 import { Copy, Download, Pause, Play, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -23,8 +24,8 @@ type NssurgeDashboardProps = {
   isAuthenticated: boolean
 }
 
-function formatTime(ms: number | null): string {
-  if (ms == null) return '—'
+function formatTime(ms: number | null, empty = '—'): string {
+  if (ms == null) return empty
   return new Date(ms).toLocaleString()
 }
 
@@ -49,7 +50,9 @@ function BodyPanel({
   byteLength: number | null
   skippedReason: string | null
 }) {
+  const { t } = useTranslation()
   const [pretty, setPretty] = useState(true)
+  const empty = t('—')
 
   const isJsonLike = useMemo(() => {
     if (!bodyText) return false
@@ -71,23 +74,23 @@ function BodyPanel({
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <span className="font-medium text-foreground">{label}</span>
-        <span>kind: {bodyKind ?? '—'}</span>
-        {byteLength != null && <span>{byteLength} bytes</span>}
-        {skippedReason && <span>reason: {skippedReason}</span>}
+        <span>{t('kind: {{kind}}', { kind: bodyKind ?? empty })}</span>
+        {byteLength != null && <span>{t('{{count}} bytes', { count: byteLength })}</span>}
+        {skippedReason && <span>{t('reason: {{reason}}', { reason: skippedReason })}</span>}
         {isJsonLike && bodyText && (
           <Button type="button" variant="outline" size="xs" onClick={() => setPretty((v) => !v)}>
-            {pretty ? 'Raw' : 'Pretty'}
+            {pretty ? t('Raw') : t('Pretty')}
           </Button>
         )}
       </div>
       {bodyKind === 'binary_skipped' ? (
-        <p className="text-sm text-amber-700 dark:text-amber-300">Binary body skipped</p>
+        <p className="text-sm text-amber-700 dark:text-amber-300">{t('Binary body skipped')}</p>
       ) : bodyText ? (
         <pre className="max-h-64 overflow-auto rounded border bg-muted/40 p-2 font-mono text-xs whitespace-pre-wrap break-all">
           {displayText}
         </pre>
       ) : (
-        <p className="text-sm text-muted-foreground">No body</p>
+        <p className="text-sm text-muted-foreground">{t('No body')}</p>
       )}
     </div>
   )
@@ -106,7 +109,9 @@ function ExchangeRow({
   detail: NssurgeExchange | null
   loadingDetail: boolean
 }) {
+  const { t } = useTranslation()
   const data = detail ?? exchange
+  const empty = t('—')
 
   return (
     <div className="border-b border-border/60">
@@ -115,32 +120,40 @@ function ExchangeRow({
         onClick={onToggle}
         className="flex w-full flex-col gap-1 px-3 py-2 text-left text-sm hover:bg-muted/40 sm:flex-row sm:items-center sm:gap-3"
       >
-        <span className="shrink-0 font-mono text-xs font-semibold">{data.method ?? '—'}</span>
+        <span className="shrink-0 font-mono text-xs font-semibold">{data.method ?? empty}</span>
         <span
           className={cn(
             'shrink-0 font-mono text-xs font-semibold',
             statusClass(data.responseStatus),
           )}
         >
-          {data.responseStatus ?? '—'}
+          {data.responseStatus ?? empty}
         </span>
         <span className="min-w-0 flex-1 truncate font-mono text-xs">{data.url}</span>
-        <span className="shrink-0 text-xs text-muted-foreground">{data.host ?? '—'}</span>
+        <span className="shrink-0 text-xs text-muted-foreground">{data.host ?? empty}</span>
         <span className="shrink-0 text-xs text-muted-foreground">
-          {formatTime(data.responseCapturedAtMs ?? data.requestCapturedAtMs)}
+          {formatTime(data.responseCapturedAtMs ?? data.requestCapturedAtMs, empty)}
         </span>
       </button>
       {expanded && (
         <div className="space-y-4 border-t bg-muted/20 px-3 py-3 text-sm">
-          {loadingDetail && <p className="text-muted-foreground">Loading bodies…</p>}
+          {loadingDetail && <p className="text-muted-foreground">{t('Loading bodies…')}</p>}
           <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-            <div>Request captured: {formatTime(data.requestCapturedAtMs)}</div>
-            <div>Response captured: {formatTime(data.responseCapturedAtMs)}</div>
-            <div className="sm:col-span-2">ID: {data.surgeRequestId}</div>
+            <div>
+              {t('Request captured: {{time}}', {
+                time: formatTime(data.requestCapturedAtMs, empty),
+              })}
+            </div>
+            <div>
+              {t('Response captured: {{time}}', {
+                time: formatTime(data.responseCapturedAtMs, empty),
+              })}
+            </div>
+            <div className="sm:col-span-2">{t('ID: {{id}}', { id: data.surgeRequestId })}</div>
           </div>
           {data.requestHeadersJson && (
             <div>
-              <p className="mb-1 text-xs font-medium">Request headers</p>
+              <p className="mb-1 text-xs font-medium">{t('Request headers')}</p>
               <pre className="max-h-40 overflow-auto rounded border bg-background p-2 font-mono text-xs">
                 {JSON.stringify(JSON.parse(data.requestHeadersJson), null, 2)}
               </pre>
@@ -148,21 +161,21 @@ function ExchangeRow({
           )}
           {data.responseHeadersJson && (
             <div>
-              <p className="mb-1 text-xs font-medium">Response headers</p>
+              <p className="mb-1 text-xs font-medium">{t('Response headers')}</p>
               <pre className="max-h-40 overflow-auto rounded border bg-background p-2 font-mono text-xs">
                 {JSON.stringify(JSON.parse(data.responseHeadersJson), null, 2)}
               </pre>
             </div>
           )}
           <BodyPanel
-            label="Request body"
+            label={t('Request body')}
             bodyKind={data.requestBodyKind}
             bodyText={data.requestBodyText}
             byteLength={data.requestBodyByteLength}
             skippedReason={data.requestBodySkippedReason}
           />
           <BodyPanel
-            label="Response body"
+            label={t('Response body')}
             bodyKind={data.responseBodyKind}
             bodyText={data.responseBodyText}
             byteLength={data.responseBodyByteLength}
@@ -175,6 +188,7 @@ function ExchangeRow({
 }
 
 export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeDashboardProps) {
+  const { t } = useTranslation()
   const [origin, setOrigin] = useState('')
   const [items, setItems] = useState<NssurgeExchange[]>([])
   const [loading, setLoading] = useState(false)
@@ -236,11 +250,11 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
       const data = (await res.json()) as ExchangesResponse
       setItems(data.items)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load')
+      setError(e instanceof Error ? e.message : t('Failed to load'))
     } finally {
       setLoading(false)
     }
-  }, [hostFilter, limit, q, statusFilter])
+  }, [hostFilter, limit, q, statusFilter, t])
 
   const fetchExchangeDetail = useCallback(async (surgeRequestId: string) => {
     setLoadingDetailId(surgeRequestId)
@@ -325,24 +339,25 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">NSSurge Collector</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('NSSurge Collector')}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Capture Surge HTTP request/response text bodies into Prisma via{' '}
+          {t('Capture Surge HTTP request/response text bodies into Prisma via')}{' '}
           <code className="text-xs">/api/nssurge</code>.
         </p>
       </div>
 
       {!isAuthenticated && (
         <div className="rounded border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
-          Local development mode is using an internal NSSurge dev user. Sign in to generate a
-          user-specific API token.
+          {t(
+            'Local development mode is using an internal NSSurge dev user. Sign in to generate a user-specific API token.',
+          )}
         </div>
       )}
 
       {isLocalhost && (
         <div className="rounded border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
-          iPhone Surge cannot reach <strong>127.0.0.1</strong> on your Mac. Use your Mac&apos;s LAN
-          IP in collector endpoint and script URLs (e.g.{' '}
+          {t('iPhone Surge cannot reach')} <strong>127.0.0.1</strong>{' '}
+          {t("on your Mac. Use your Mac's LAN IP in collector endpoint and script URLs (e.g.")}{' '}
           <code className="text-xs">http://192.168.1.23:3000/api/nssurge</code>).
         </div>
       )}
@@ -360,7 +375,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   : 'border-transparent text-muted-foreground hover:text-foreground',
               )}
             >
-              Request list
+              {t('Request list')}
             </button>
             <button
               type="button"
@@ -372,7 +387,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   : 'border-transparent text-muted-foreground hover:text-foreground',
               )}
             >
-              Generate Surge module
+              {t('Generate Surge module')}
             </button>
           </div>
         </CardHeader>
@@ -381,16 +396,16 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
             <>
               <div className="flex flex-wrap items-end gap-2 px-3 pb-3">
                 <div className="min-w-[12rem] flex-1">
-                  <Label htmlFor="q">URL search</Label>
+                  <Label htmlFor="q">{t('URL search')}</Label>
                   <Input
                     id="q"
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder="contains…"
+                    placeholder={t('contains…')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="host">Host</Label>
+                  <Label htmlFor="host">{t('Host')}</Label>
                   <Input
                     id="host"
                     value={hostFilter}
@@ -399,7 +414,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   />
                 </div>
                 <div>
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status">{t('Status')}</Label>
                   <Input
                     id="status"
                     value={statusFilter}
@@ -408,7 +423,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   />
                 </div>
                 <div>
-                  <Label htmlFor="limit">Limit</Label>
+                  <Label htmlFor="limit">{t('Limit')}</Label>
                   <select
                     id="limit"
                     className="h-8 w-full min-w-20 border bg-background px-2 text-xs"
@@ -429,7 +444,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   onClick={() => void fetchExchanges()}
                 >
                   <RefreshCw className={cn(loading && 'animate-spin')} />
-                  Refresh
+                  {t('Refresh')}
                 </Button>
                 <Button
                   type="button"
@@ -438,7 +453,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   onClick={() => setAutoRefresh((v) => !v)}
                 >
                   {autoRefresh ? <Pause /> : <Play />}
-                  {autoRefresh ? 'Pause' : 'Resume'}
+                  {autoRefresh ? t('Pause') : t('Resume')}
                 </Button>
               </div>
 
@@ -447,7 +462,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
               <div className="max-h-[32rem] overflow-auto border-t">
                 {items.length === 0 && !loading && (
                   <p className="p-4 text-sm text-muted-foreground">
-                    No exchanges yet. POST events via Surge or curl.
+                    {t('No exchanges yet. POST events via Surge or curl.')}
                   </p>
                 )}
                 {items.map((item) => (
@@ -468,7 +483,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
             <div className="space-y-4 p-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <Label htmlFor="domains">Domains (comma or newline)</Label>
+                  <Label htmlFor="domains">{t('Domains (comma or newline)')}</Label>
                   <textarea
                     id="domains"
                     className="mt-1 min-h-20 w-full border bg-background px-2 py-1 font-mono text-xs"
@@ -482,10 +497,10 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                     checked={includeSubdomains}
                     onCheckedChange={(v) => setIncludeSubdomains(v === true)}
                   />
-                  <Label htmlFor="subdomains">Include subdomains</Label>
+                  <Label htmlFor="subdomains">{t('Include subdomains')}</Label>
                 </div>
                 <div>
-                  <Label htmlFor="protocol">Protocol</Label>
+                  <Label htmlFor="protocol">{t('Protocol')}</Label>
                   <select
                     id="protocol"
                     className="mt-1 h-8 w-full border bg-background px-2 text-xs"
@@ -498,7 +513,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   </select>
                 </div>
                 <div className="sm:col-span-2">
-                  <Label htmlFor="endpoint">Collector endpoint</Label>
+                  <Label htmlFor="endpoint">{t('Collector endpoint')}</Label>
                   <Input
                     id="endpoint"
                     value={collectorEndpoint}
@@ -506,7 +521,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label htmlFor="scriptBase">Script base URL</Label>
+                  <Label htmlFor="scriptBase">{t('Script base URL')}</Label>
                   <Input
                     id="scriptBase"
                     value={scriptBaseUrl}
@@ -514,13 +529,13 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   />
                 </div>
                 <div>
-                  <Label htmlFor="token">API token</Label>
+                  <Label htmlFor="token">{t('API token')}</Label>
                   <div className="mt-1 flex gap-2">
                     <Input
                       id="token"
                       value={apiToken}
                       readOnly
-                      placeholder="Optional on local development"
+                      placeholder={t('Optional on local development')}
                     />
                     <Button
                       type="button"
@@ -528,14 +543,14 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                       size="icon"
                       onClick={() => void handleCopyApiToken()}
                       disabled={!apiToken}
-                      title="Copy API token"
+                      title={t('Copy API token')}
                     >
                       <Copy />
                     </Button>
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="maxSize">Max body size</Label>
+                  <Label htmlFor="maxSize">{t('Max body size')}</Label>
                   <Input
                     id="maxSize"
                     type="number"
@@ -544,7 +559,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                   />
                 </div>
                 <div>
-                  <Label htmlFor="timeout">Timeout (seconds)</Label>
+                  <Label htmlFor="timeout">{t('Timeout (seconds)')}</Label>
                   <Input
                     id="timeout"
                     type="number"
@@ -558,17 +573,19 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                     checked={enableMitm}
                     onCheckedChange={(v) => setEnableMitm(v === true)}
                   />
-                  <Label htmlFor="mitm">Enable MITM hostname</Label>
+                  <Label htmlFor="mitm">{t('Enable MITM hostname')}</Label>
                 </div>
               </div>
 
               <p className="text-xs text-muted-foreground">
-                HTTPS bodies require MITM hostname and a trusted CA on the device. Avoid enabling{' '}
-                <code>requires-body=true</code> globally — scope domains narrowly.
+                {t(
+                  'HTTPS bodies require MITM hostname and a trusted CA on the device. Avoid enabling',
+                )}{' '}
+                <code>requires-body=true</code> {t('globally — scope domains narrowly.')}
               </p>
 
               <Button type="button" onClick={handleGenerateModule}>
-                Generate .sgmodule
+                {t('Generate .sgmodule')}
               </Button>
 
               {moduleText && (
@@ -581,7 +598,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                       onClick={() => void handleCopyModule()}
                     >
                       <Copy />
-                      Copy
+                      {t('Copy')}
                     </Button>
                     <Button
                       type="button"
@@ -590,7 +607,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                       onClick={handleDownloadModule}
                     >
                       <Download />
-                      Download
+                      {t('Download')}
                     </Button>
                   </div>
                   <pre className="max-h-80 overflow-auto rounded border bg-muted/40 p-3 font-mono text-xs whitespace-pre-wrap">
