@@ -3,7 +3,7 @@
 import { Copy, Download, Pause, Play, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -197,6 +197,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
   const [timeoutSeconds, setTimeoutSeconds] = useState(1)
   const [enableMitm, setEnableMitm] = useState(true)
   const [moduleText, setModuleText] = useState('')
+  const [activeTab, setActiveTab] = useState<'requests' | 'module'>('requests')
 
   useEffect(() => {
     const base = window.location.origin
@@ -213,29 +214,6 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
       return false
     }
   }, [origin])
-
-  const stats = useMemo(() => {
-    const hosts = new Set<string>()
-    let s2 = 0
-    let s3 = 0
-    let s4 = 0
-    let s5 = 0
-    let latest = 0
-
-    for (const item of items) {
-      if (item.host) hosts.add(item.host)
-      const t = item.responseCapturedAtMs ?? item.requestCapturedAtMs ?? 0
-      if (t > latest) latest = t
-      const st = item.responseStatus
-      if (st == null) continue
-      if (st >= 200 && st < 300) s2++
-      else if (st >= 300 && st < 400) s3++
-      else if (st >= 400 && st < 500) s4++
-      else if (st >= 500) s5++
-    }
-
-    return { total: items.length, s2, s3, s4, s5, hosts: hosts.size, latest }
-  }, [items])
 
   const fetchExchanges = useCallback(async () => {
     setLoading(true)
@@ -369,242 +347,257 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
         </div>
       )}
 
-      <div className="grid gap-2 rounded border bg-muted/30 p-3 text-xs sm:grid-cols-3 lg:grid-cols-6">
-        <div>
-          <span className="text-muted-foreground">Shown</span>
-          <p className="font-mono text-sm">{stats.total}</p>
-        </div>
-        <div>
-          <span className="text-muted-foreground">2xx / 3xx / 4xx / 5xx</span>
-          <p className="font-mono text-sm">
-            {stats.s2} / {stats.s3} / {stats.s4} / {stats.s5}
-          </p>
-        </div>
-        <div>
-          <span className="text-muted-foreground">Unique hosts</span>
-          <p className="font-mono text-sm">{stats.hosts}</p>
-        </div>
-        <div className="sm:col-span-2 lg:col-span-3">
-          <span className="text-muted-foreground">Latest captured</span>
-          <p className="font-mono text-sm">{stats.latest ? formatTime(stats.latest) : '—'}</p>
-        </div>
-      </div>
-
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Request list</CardTitle>
+        <CardHeader className="pb-0">
+          <div className="flex gap-1 border-b border-border">
+            <button
+              type="button"
+              onClick={() => setActiveTab('requests')}
+              className={cn(
+                '-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+                activeTab === 'requests'
+                  ? 'border-primary text-foreground'
+                  : 'border-transparent text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Request list
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('module')}
+              className={cn(
+                '-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+                activeTab === 'module'
+                  ? 'border-primary text-foreground'
+                  : 'border-transparent text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Generate Surge module
+            </button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3 p-0 pt-0">
-          <div className="flex flex-wrap items-end gap-2 px-3 pb-3">
-            <div className="min-w-[12rem] flex-1">
-              <Label htmlFor="q">URL search</Label>
-              <Input
-                id="q"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="contains…"
-              />
-            </div>
-            <div>
-              <Label htmlFor="host">Host</Label>
-              <Input
-                id="host"
-                value={hostFilter}
-                onChange={(e) => setHostFilter(e.target.value)}
-                placeholder="api.example.com"
-              />
-            </div>
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Input
-                id="status"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                placeholder="200"
-              />
-            </div>
-            <div>
-              <Label htmlFor="limit">Limit</Label>
-              <select
-                id="limit"
-                className="h-8 w-full min-w-20 border bg-background px-2 text-xs"
-                value={limit}
-                onChange={(e) => setLimit(Number(e.target.value))}
-              >
-                {LIMIT_OPTIONS.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Button type="button" variant="outline" size="sm" onClick={() => void fetchExchanges()}>
-              <RefreshCw className={cn(loading && 'animate-spin')} />
-              Refresh
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setAutoRefresh((v) => !v)}
-            >
-              {autoRefresh ? <Pause /> : <Play />}
-              {autoRefresh ? 'Pause' : 'Resume'}
-            </Button>
-          </div>
-
-          {error && <p className="px-3 text-sm text-destructive">{error}</p>}
-
-          <div className="max-h-[32rem] overflow-auto border-t">
-            {items.length === 0 && !loading && (
-              <p className="p-4 text-sm text-muted-foreground">
-                No exchanges yet. POST events via Surge or curl.
-              </p>
-            )}
-            {items.map((item) => (
-              <ExchangeRow
-                key={item.surgeRequestId}
-                exchange={item}
-                expanded={expandedId === item.surgeRequestId}
-                onToggle={() => handleToggle(item.surgeRequestId)}
-                detail={detailById[item.surgeRequestId] ?? null}
-                loadingDetail={loadingDetailId === item.surgeRequestId}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Generate Surge module</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <Label htmlFor="domains">Domains (comma or newline)</Label>
-              <textarea
-                id="domains"
-                className="mt-1 min-h-20 w-full border bg-background px-2 py-1 font-mono text-xs"
-                value={domainsInput}
-                onChange={(e) => setDomainsInput(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="subdomains"
-                checked={includeSubdomains}
-                onCheckedChange={(v) => setIncludeSubdomains(v === true)}
-              />
-              <Label htmlFor="subdomains">Include subdomains</Label>
-            </div>
-            <div>
-              <Label htmlFor="protocol">Protocol</Label>
-              <select
-                id="protocol"
-                className="mt-1 h-8 w-full border bg-background px-2 text-xs"
-                value={protocol}
-                onChange={(e) => setProtocol(e.target.value as 'https' | 'http' | 'both')}
-              >
-                <option value="https">https</option>
-                <option value="http">http</option>
-                <option value="both">both</option>
-              </select>
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="endpoint">Collector endpoint</Label>
-              <Input
-                id="endpoint"
-                value={collectorEndpoint}
-                onChange={(e) => setCollectorEndpoint(e.target.value)}
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="scriptBase">Script base URL</Label>
-              <Input
-                id="scriptBase"
-                value={scriptBaseUrl}
-                onChange={(e) => setScriptBaseUrl(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="token">API token</Label>
-              <div className="mt-1 flex gap-2">
-                <Input
-                  id="token"
-                  value={apiToken}
-                  readOnly
-                  placeholder="Optional on local development"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => void handleCopyApiToken()}
-                  disabled={!apiToken}
-                  title="Copy API token"
-                >
-                  <Copy />
-                </Button>
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="maxSize">Max body size</Label>
-              <Input
-                id="maxSize"
-                type="number"
-                value={maxSize}
-                onChange={(e) => setMaxSize(Number(e.target.value))}
-              />
-            </div>
-            <div>
-              <Label htmlFor="timeout">Timeout (seconds)</Label>
-              <Input
-                id="timeout"
-                type="number"
-                value={timeoutSeconds}
-                onChange={(e) => setTimeoutSeconds(Number(e.target.value))}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="mitm"
-                checked={enableMitm}
-                onCheckedChange={(v) => setEnableMitm(v === true)}
-              />
-              <Label htmlFor="mitm">Enable MITM hostname</Label>
-            </div>
-          </div>
-
-          <p className="text-xs text-muted-foreground">
-            HTTPS bodies require MITM hostname and a trusted CA on the device. Avoid enabling{' '}
-            <code>requires-body=true</code> globally — scope domains narrowly.
-          </p>
-
-          <Button type="button" onClick={handleGenerateModule}>
-            Generate .sgmodule
-          </Button>
-
-          {moduleText && (
-            <div className="space-y-2">
-              <div className="flex gap-2">
+          {activeTab === 'requests' && (
+            <>
+              <div className="flex flex-wrap items-end gap-2 px-3 pb-3">
+                <div className="min-w-[12rem] flex-1">
+                  <Label htmlFor="q">URL search</Label>
+                  <Input
+                    id="q"
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="contains…"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="host">Host</Label>
+                  <Input
+                    id="host"
+                    value={hostFilter}
+                    onChange={(e) => setHostFilter(e.target.value)}
+                    placeholder="api.example.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Input
+                    id="status"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    placeholder="200"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="limit">Limit</Label>
+                  <select
+                    id="limit"
+                    className="h-8 w-full min-w-20 border bg-background px-2 text-xs"
+                    value={limit}
+                    onChange={(e) => setLimit(Number(e.target.value))}
+                  >
+                    {LIMIT_OPTIONS.map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => void handleCopyModule()}
+                  onClick={() => void fetchExchanges()}
                 >
-                  <Copy />
-                  Copy
+                  <RefreshCw className={cn(loading && 'animate-spin')} />
+                  Refresh
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={handleDownloadModule}>
-                  <Download />
-                  Download
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAutoRefresh((v) => !v)}
+                >
+                  {autoRefresh ? <Pause /> : <Play />}
+                  {autoRefresh ? 'Pause' : 'Resume'}
                 </Button>
               </div>
-              <pre className="max-h-80 overflow-auto rounded border bg-muted/40 p-3 font-mono text-xs whitespace-pre-wrap">
-                {moduleText}
-              </pre>
+
+              {error && <p className="px-3 text-sm text-destructive">{error}</p>}
+
+              <div className="max-h-[32rem] overflow-auto border-t">
+                {items.length === 0 && !loading && (
+                  <p className="p-4 text-sm text-muted-foreground">
+                    No exchanges yet. POST events via Surge or curl.
+                  </p>
+                )}
+                {items.map((item) => (
+                  <ExchangeRow
+                    key={item.surgeRequestId}
+                    exchange={item}
+                    expanded={expandedId === item.surgeRequestId}
+                    onToggle={() => handleToggle(item.surgeRequestId)}
+                    detail={detailById[item.surgeRequestId] ?? null}
+                    loadingDetail={loadingDetailId === item.surgeRequestId}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {activeTab === 'module' && (
+            <div className="space-y-4 p-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Label htmlFor="domains">Domains (comma or newline)</Label>
+                  <textarea
+                    id="domains"
+                    className="mt-1 min-h-20 w-full border bg-background px-2 py-1 font-mono text-xs"
+                    value={domainsInput}
+                    onChange={(e) => setDomainsInput(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="subdomains"
+                    checked={includeSubdomains}
+                    onCheckedChange={(v) => setIncludeSubdomains(v === true)}
+                  />
+                  <Label htmlFor="subdomains">Include subdomains</Label>
+                </div>
+                <div>
+                  <Label htmlFor="protocol">Protocol</Label>
+                  <select
+                    id="protocol"
+                    className="mt-1 h-8 w-full border bg-background px-2 text-xs"
+                    value={protocol}
+                    onChange={(e) => setProtocol(e.target.value as 'https' | 'http' | 'both')}
+                  >
+                    <option value="https">https</option>
+                    <option value="http">http</option>
+                    <option value="both">both</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="endpoint">Collector endpoint</Label>
+                  <Input
+                    id="endpoint"
+                    value={collectorEndpoint}
+                    onChange={(e) => setCollectorEndpoint(e.target.value)}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="scriptBase">Script base URL</Label>
+                  <Input
+                    id="scriptBase"
+                    value={scriptBaseUrl}
+                    onChange={(e) => setScriptBaseUrl(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="token">API token</Label>
+                  <div className="mt-1 flex gap-2">
+                    <Input
+                      id="token"
+                      value={apiToken}
+                      readOnly
+                      placeholder="Optional on local development"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => void handleCopyApiToken()}
+                      disabled={!apiToken}
+                      title="Copy API token"
+                    >
+                      <Copy />
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="maxSize">Max body size</Label>
+                  <Input
+                    id="maxSize"
+                    type="number"
+                    value={maxSize}
+                    onChange={(e) => setMaxSize(Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="timeout">Timeout (seconds)</Label>
+                  <Input
+                    id="timeout"
+                    type="number"
+                    value={timeoutSeconds}
+                    onChange={(e) => setTimeoutSeconds(Number(e.target.value))}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="mitm"
+                    checked={enableMitm}
+                    onCheckedChange={(v) => setEnableMitm(v === true)}
+                  />
+                  <Label htmlFor="mitm">Enable MITM hostname</Label>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                HTTPS bodies require MITM hostname and a trusted CA on the device. Avoid enabling{' '}
+                <code>requires-body=true</code> globally — scope domains narrowly.
+              </p>
+
+              <Button type="button" onClick={handleGenerateModule}>
+                Generate .sgmodule
+              </Button>
+
+              {moduleText && (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void handleCopyModule()}
+                    >
+                      <Copy />
+                      Copy
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownloadModule}
+                    >
+                      <Download />
+                      Download
+                    </Button>
+                  </div>
+                  <pre className="max-h-80 overflow-auto rounded border bg-muted/40 p-3 font-mono text-xs whitespace-pre-wrap">
+                    {moduleText}
+                  </pre>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
