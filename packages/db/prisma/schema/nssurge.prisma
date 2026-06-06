@@ -44,3 +44,15 @@ model NssurgeHttpEvent {
   @@index([responseStatus])
   @@map("nssurge_http_events")
 }
+
+model NssurgeModule {
+  key       String   @id
+  value     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("nssurge_modules")
+}

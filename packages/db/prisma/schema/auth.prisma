@@ -10,6 +10,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   nssurgeEvents NssurgeHttpEvent[]
+  nssurgeModules NssurgeModule[]
 
   @@unique([email])
   @@map("user")

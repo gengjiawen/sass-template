@@ -101,6 +101,12 @@ async function developmentAccess() {
 export async function authorizeNssurgeReadRequest(
   request: Request,
 ): Promise<NssurgeAccess | Response> {
+  return authorizeNssurgeUserRequest(request)
+}
+
+export async function authorizeNssurgeUserRequest(
+  request: Request,
+): Promise<NssurgeAccess | Response> {
   const sessionAccess = await accessFromSession(request)
   if (sessionAccess) return sessionAccess
 
@@ -135,5 +141,5 @@ export async function authorizeNssurgeWriteRequest(
 export async function authorizeNssurgeDeleteRequest(
   request: Request,
 ): Promise<NssurgeAccess | Response> {
-  return authorizeNssurgeReadRequest(request)
+  return authorizeNssurgeUserRequest(request)
 }

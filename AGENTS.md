@@ -46,7 +46,7 @@ tRPC lives in `apps/web/src/server/api/` (not a separate `packages/api` package)
 
 - Routes: `POST/GET/DELETE /api/nssurge`; dashboard `/nssurge`; Surge scripts `/nssurge/log-request.js`, `/nssurge/log-response.js`.
 - Code: `apps/web/src/lib/nssurge/`, `apps/web/src/app/api/nssurge/route.ts`, `packages/db/prisma/schema/nssurge.prisma`.
-- Env: `NSSURGE_COLLECTOR_TOKEN`, `NSSURGE_MAX_EVENT_BYTES` (see `.env.example`). Uses existing `DATABASE_URL` via Prisma — no separate SQLite file.
+- Auth: local development can use the internal NSSurge dev user without a token; production uses each user's `apiToken`. Limits are code constants. Uses existing `DATABASE_URL` via Prisma — no separate SQLite file.
 - Spec: `plan/nssurge-collector.md`.
 
 ### Fumadocs conventions

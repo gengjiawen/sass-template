@@ -1,6 +1,6 @@
 'use client'
 
-import { Copy, Download, Pause, Play, RefreshCw } from 'lucide-react'
+import { Copy, Download, Link, Pause, Play, RefreshCw, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -288,6 +288,19 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
   const [moduleText, setModuleText] = useState('')
   const [activeTab, setActiveTab] = useState<'requests' | 'module'>('requests')
 
+  const [savingModule, setSavingModule] = useState(false)
+  const [savedUrl, setSavedUrl] = useState<string | null>(null)
+  const [savedModules, setSavedModules] = useState<
+    Array<{
+      key: string
+      url: string
+      createdAt: string
+      updatedAt: string
+    }>
+  >([])
+  const [loadingSaved, setLoadingSaved] = useState(false)
+  const [savedError, setSavedError] = useState<string | null>(null)
+
   useEffect(() => {
     const base = window.location.origin
     setOrigin(base)
@@ -388,6 +401,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
       protocol,
     })
     setModuleText(text)
+    setSavedUrl(null)
   }
 
   const handleCopyModule = async () => {
@@ -409,6 +423,68 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
     a.download = 'nssurge-collector.sgmodule'
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  const fetchSavedModules = useCallback(async () => {
+    setLoadingSaved(true)
+    setSavedError(null)
+    try {
+      const res = await fetch('/api/nssurge/modules')
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error ?? `HTTP ${res.status}`)
+      }
+      const data = (await res.json()) as { items: typeof savedModules }
+      setSavedModules(data.items)
+    } catch (e) {
+      setSavedError(e instanceof Error ? e.message : t('Failed to load modules'))
+    } finally {
+      setLoadingSaved(false)
+    }
+  }, [t])
+
+  useEffect(() => {
+    if (activeTab === 'module' && origin) void fetchSavedModules()
+  }, [activeTab, origin, fetchSavedModules])
+
+  const handleSaveModule = async () => {
+    if (!moduleText) return
+    setSavingModule(true)
+    setSavedUrl(null)
+    setSavedError(null)
+    try {
+      const res = await fetch('/api/nssurge/modules', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ value: moduleText }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error ?? `HTTP ${res.status}`)
+      }
+      const data = (await res.json()) as { key: string; url: string }
+      await navigator.clipboard.writeText(`${origin}${data.url}`)
+      setSavedUrl(`${origin}${data.url}`)
+      await fetchSavedModules()
+    } catch (e) {
+      setSavedError(e instanceof Error ? e.message : t('Failed to save module'))
+    } finally {
+      setSavingModule(false)
+    }
+  }
+
+  const handleDeleteModule = async (key: string) => {
+    setSavedError(null)
+    try {
+      const res = await fetch(`/api/nssurge/modules/${key}.sgmodule`, { method: 'DELETE' })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error ?? `HTTP ${res.status}`)
+      }
+      setSavedModules((prev) => prev.filter((m) => m.key !== key))
+    } catch (e) {
+      setSavedError(e instanceof Error ? e.message : t('Failed to delete module'))
+    }
   }
 
   return (
@@ -685,11 +761,76 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
                       <Download />
                       {t('Download')}
                     </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void handleSaveModule()}
+                      disabled={savingModule || !moduleText}
+                    >
+                      <Link />
+                      {savingModule ? t('Saving…') : t('Save & Copy URL')}
+                    </Button>
                   </div>
+                  {savedUrl && (
+                    <p className="text-xs">
+                      <span className="text-muted-foreground">{t('Saved: ')}</span>
+                      <code className="font-mono text-green-600 dark:text-green-400 break-all">
+                        {savedUrl}
+                      </code>
+                    </p>
+                  )}
                   <pre className="max-h-80 overflow-auto rounded border bg-muted/40 p-3 font-mono text-xs whitespace-pre-wrap">
                     {moduleText}
                   </pre>
                 </div>
+              )}
+
+              {savedError && <p className="text-xs text-destructive">{savedError}</p>}
+
+              {savedModules.length > 0 && (
+                <div className="space-y-2 border-t pt-4">
+                  <p className="text-sm font-medium">{t('Saved modules')}</p>
+                  <div className="space-y-1">
+                    {savedModules.map((m) => (
+                      <div
+                        key={m.key}
+                        className="flex items-center gap-2 rounded border bg-muted/20 px-3 py-2 text-xs"
+                      >
+                        <span className="font-mono font-medium">{m.key}</span>
+                        <span className="text-muted-foreground">
+                          {new Date(m.createdAt).toLocaleDateString()}
+                        </span>
+                        <code className="flex-1 truncate text-muted-foreground">{`${origin}${m.url}`}</code>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          aria-label={t('Copy module URL')}
+                          title={t('Copy module URL')}
+                          onClick={async () => {
+                            await navigator.clipboard.writeText(`${origin}${m.url}`)
+                          }}
+                        >
+                          <Copy />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          aria-label={t('Delete module')}
+                          title={t('Delete module')}
+                          onClick={() => void handleDeleteModule(m.key)}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {loadingSaved && (
+                <p className="text-xs text-muted-foreground">{t('Loading saved…')}</p>
               )}
             </div>
           )}

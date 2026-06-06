@@ -37,21 +37,20 @@ Surge 的 `http-request` 和 `http-response` script 把捕获到的请求/响应
 
 新增或修改这些文件：
 
-| 路径                                              | 说明                                  |
-| ------------------------------------------------- | ------------------------------------- |
-| `packages/db/prisma/schema/nssurge.prisma`        | Prisma 模型与 enum                    |
-| `apps/web/src/app/api/nssurge/route.ts`           | API Route Handler                     |
-| `apps/web/src/app/nssurge/page.tsx`               | 页面入口                              |
-| `apps/web/src/app/nssurge/nssurge-dashboard.tsx`  | 仪表盘 UI                             |
-| `apps/web/src/lib/nssurge/schema.ts`              | Zod schema、normalize                 |
-| `apps/web/src/lib/nssurge/repository.ts`          | Prisma 读写                           |
-| `apps/web/src/lib/nssurge/module.ts`              | Surge `.sgmodule` 生成                |
-| `apps/web/src/lib/nssurge/curl.ts`                | exchange → cURL 命令生成              |
-| `apps/web/src/locales/en-US.json`                 | 页面 i18n（与 `zh-CN.json` 同步 key） |
-| `apps/web/public/nssurge/log-request.js`          | Surge request script                  |
-| `apps/web/public/nssurge/log-response.js`         | Surge response script                 |
-| `apps/web/.env.example` 或仓库已有 `.env.example` | 环境变量示例                          |
-| `README.md`                                       | 追加 NSSurge collector 使用说明       |
+| 路径                                             | 说明                                  |
+| ------------------------------------------------ | ------------------------------------- |
+| `packages/db/prisma/schema/nssurge.prisma`       | Prisma 模型与 enum                    |
+| `apps/web/src/app/api/nssurge/route.ts`          | API Route Handler                     |
+| `apps/web/src/app/nssurge/page.tsx`              | 页面入口                              |
+| `apps/web/src/app/nssurge/nssurge-dashboard.tsx` | 仪表盘 UI                             |
+| `apps/web/src/lib/nssurge/schema.ts`             | Zod schema、normalize                 |
+| `apps/web/src/lib/nssurge/repository.ts`         | Prisma 读写                           |
+| `apps/web/src/lib/nssurge/module.ts`             | Surge `.sgmodule` 生成                |
+| `apps/web/src/lib/nssurge/curl.ts`               | exchange → cURL 命令生成              |
+| `apps/web/src/locales/en-US.json`                | 页面 i18n（与 `zh-CN.json` 同步 key） |
+| `apps/web/public/nssurge/log-request.js`         | Surge request script                  |
+| `apps/web/public/nssurge/log-response.js`        | Surge response script                 |
+| `README.md`                                      | 追加 NSSurge collector 使用说明       |
 
 ---
 
@@ -86,6 +85,8 @@ enum NssurgeBodyKind {
 
 model NssurgeHttpEvent {
   id                  Int               @id @default(autoincrement())
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   surgeRequestId      String
   eventType           NssurgeEventType
   capturedAtMs        BigInt
@@ -106,13 +107,26 @@ model NssurgeHttpEvent {
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
-  @@unique([surgeRequestId, eventType])
+  @@unique([userId, surgeRequestId, eventType])
+  @@index([userId])
   @@index([capturedAtMs])
   @@index([host])
   @@index([url])
   @@index([eventType])
   @@index([responseStatus])
   @@map("nssurge_http_events")
+}
+
+model NssurgeModule {
+  key       String   @id
+  value     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("nssurge_modules")
 }
 ```
 
@@ -172,7 +186,7 @@ export const dynamic = 'force-dynamic'
 6. 超过限制返回 `413`
 7. `JSON.parse` 后用 zod 校验
 8. 如果 payload 里出现 `body.base64`、`body.sha256` 等非法 body 编码字段，要忽略并且不要写进 `rawJson`
-9. `rawJson` 保存 normalized/sanitized JSON，不保存原始未过滤 payload
+9. `rawJson` 保存 normalized JSON，不保存原始未过滤 payload
 10. 成功返回 `204`
 11. 失败返回 JSON error，但不要泄露内部 stack trace
 
@@ -228,13 +242,21 @@ export const dynamic = 'force-dynamic'
    - `listNssurgeExchanges(params)`
    - `clearNssurgeEvents(params)`
 3. `insertNssurgeEvent` 使用 `prisma.nssurgeHttpEvent.upsert`
-4. upsert 的 unique key 是 `surgeRequestId` + `eventType`
+4. upsert 的 unique key 是 `userId` + `surgeRequestId` + `eventType`
 5. 同一个 `surgeRequestId` + `eventType` 重复上报时更新旧行，不插入重复行
 6. BigInt 字段写入时用 `BigInt(value)`
 7. API 返回 JSON 前，所有 BigInt 都要转换成 number 或 string（epoch ms 可转 number）
 8. headers 保存为 `JSON.stringify` 后的字符串
 9. `requestHeadersJson` / `responseHeadersJson` 必须完整保留原 header 值
 10. `rawJson` 必须是 normalize 后的 JSON，并过滤非法 body 编码字段
+
+### Module Storage API
+
+- `POST /api/nssurge/modules`：保存当前生成的 `.sgmodule`。production 支持登录 session 或用户 API token；development 未登录时写入内部 `nssurge-dev-user`。
+- `GET /api/nssurge/modules`：列出当前用户或 dev user 保存的模块。
+- `GET /api/nssurge/modules/:key.sgmodule`：公开读取不透明 key 对应的模块文本，便于 Surge 通过 URL 安装；key 使用 16 bytes 随机值生成。
+- `DELETE /api/nssurge/modules/:key.sgmodule`：按当前用户或 dev user 删除，不能删除其他用户的模块。
+- 存储使用 `NssurgeModule`，不要使用泛型 `KvPair`，也不要移除 `userId` 所有权字段。
 
 #### `listNssurgeExchanges(params)`
 
@@ -499,7 +521,7 @@ UI 文案走 `react-i18next`，key 为英文 UI 字符串，维护 `en-US.json` 
 | Timeout            | 1                                              |
 | Enable MITM        | true，默认勾选                                 |
 
-生成后：显示 `.sgmodule` 文本、Copy、Download（Blob 前端下载）。
+生成后：显示 `.sgmodule` 文本、Copy、Download（Blob 前端下载）、Save & Copy URL（保存到 `NssurgeModule` 并复制公开 module URL）。
 
 **提醒：**
 
@@ -626,10 +648,12 @@ curl -X POST "http://localhost:3000/api/nssurge" \
 9. 页面列表列为 ID / Time / URL / Status / Duration
 10. 页面能展开详情并 Copy as cURL
 11. 输入 `https://host/` 生成 module 时 pattern / MITM hostname 正确
-12. 页面能生成可复制、可下载的 `.sgmodule`
-13. `pnpm db:generate` 通过
-14. TypeScript 通过
-15. `pnpm build` 尽量通过
+12. 页面能生成可复制、可下载、可保存 URL 的 `.sgmodule`
+13. 未登录本地开发保存 module 时写入 `nssurge-dev-user`，登录用户保存 module 时写入该用户
+14. 公开 module URL 可读取文本；列表和删除只作用于当前用户或 dev user
+15. `pnpm db:generate` 通过
+16. TypeScript 通过
+17. `pnpm build` 尽量通过
 
 ---
 
