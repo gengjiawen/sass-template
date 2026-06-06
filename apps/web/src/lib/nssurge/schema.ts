@@ -1,16 +1,5 @@
 import z from 'zod'
 
-const REDACTED = '[REDACTED]'
-
-const SENSITIVE_HEADER_NAMES = new Set([
-  'cookie',
-  'set-cookie',
-  'authorization',
-  'proxy-authorization',
-  'x-api-key',
-  'x-auth-token',
-])
-
 const bodyKindSchema = z.enum([
   'none',
   'text',
@@ -84,22 +73,14 @@ export type NormalizedNssurgeEvent = {
   rawJson: string
 }
 
-function headerNameMatches(name: string, sensitive: string): boolean {
-  return name.toLowerCase() === sensitive
-}
-
-export function redactHeaders(
+function normalizeHeaders(
   headers: Record<string, unknown> | null | undefined,
 ): Record<string, string> | null {
   if (!headers || typeof headers !== 'object') return null
 
   const out: Record<string, string> = {}
   for (const [key, value] of Object.entries(headers)) {
-    const lower = key.toLowerCase()
-    const isSensitive = [...SENSITIVE_HEADER_NAMES].some((name) => headerNameMatches(lower, name))
-    if (isSensitive) {
-      out[key] = REDACTED
-    } else if (value == null) {
+    if (value == null) {
       out[key] = ''
     } else if (typeof value === 'string') {
       out[key] = value
@@ -108,10 +89,6 @@ export function redactHeaders(
     }
   }
   return out
-}
-
-export function redactBodyText(_text: string, _contentType: string | null): string {
-  return _text
 }
 
 function extractHost(url: string, host: string | null | undefined): string | null {
@@ -136,8 +113,8 @@ function extractContentType(
 }
 
 export function normalizeNssurgeEvent(input: NssurgeEventInput): NormalizedNssurgeEvent {
-  const requestHeaders = redactHeaders(input.requestHeaders ?? undefined)
-  const responseHeaders = redactHeaders(input.responseHeaders ?? undefined)
+  const requestHeaders = normalizeHeaders(input.requestHeaders ?? undefined)
+  const responseHeaders = normalizeHeaders(input.responseHeaders ?? undefined)
 
   const body = input.body ?? {
     kind: 'none' as const,
@@ -148,14 +125,13 @@ export function normalizeNssurgeEvent(input: NssurgeEventInput): NormalizedNssur
 
   let bodyText: string | null = null
   if (body.kind === 'text' && body.text != null) {
-    const contentType = extractContentType(input.metadata, requestHeaders ?? responseHeaders)
-    bodyText = redactBodyText(body.text, contentType)
+    bodyText = body.text
   }
 
   const host = extractHost(input.url, input.host)
   const contentType = extractContentType(input.metadata, requestHeaders ?? responseHeaders)
 
-  const sanitizedPayload = {
+  const normalizedPayload = {
     source: input.source,
     version: input.version,
     eventType: input.eventType,
@@ -198,6 +174,6 @@ export function normalizeNssurgeEvent(input: NssurgeEventInput): NormalizedNssur
     bodyText,
     bodyByteLength: body.byteLength != null && body.byteLength > 0 ? BigInt(body.byteLength) : null,
     bodySkippedReason: body.skippedReason ?? null,
-    rawJson: JSON.stringify(sanitizedPayload),
+    rawJson: JSON.stringify(normalizedPayload),
   }
 }

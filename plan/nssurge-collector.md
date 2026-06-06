@@ -9,9 +9,6 @@
 - Web app：`apps/web`
 - 数据库包：`packages/db`
 - 已内置 Prisma、SQLite/Turso、`@my-better-t-app/db`
-- **不要**引入 `better-sqlite3`
-- **不要**使用 `node:sqlite`
-- **不要**另起一套 SQLite 访问层
 - DB 部分必须使用模板已有 Prisma 体系
 
 ## 目标
@@ -25,17 +22,14 @@ Surge 的 `http-request` 和 `http-response` script 把捕获到的请求/响应
 3. API 入口：`apps/web/src/app/api/nssurge/route.ts` → URL：`/api/nssurge`
 4. 页面入口：`apps/web/src/app/nssurge/page.tsx` → URL：`/nssurge`
 5. DB 部分必须使用 `packages/db` 里的 Prisma
-6. 不要引入 `better-sqlite3`
-7. 不要引入 `node:sqlite`
-8. 不要修改成独立 `data/nssurge.sqlite`
-9. 使用现有 `DATABASE_URL`
-10. 使用 `import prisma from "@my-better-t-app/db"`
-11. 只保存文本 body
-12. binary body 不保存
-13. 如果 body 是二进制，只记录 `bodyKind = "binary_skipped"`、`bodyByteLength` 和 `bodySkippedReason`
-14. 不要因为 body 是二进制就丢掉整条 request/response event；事件本身仍然要保存，只是 `bodyText` 为 `null`
-15. 不要接入 tRPC；collector API 用普通 Route Handler 即可
-16. 不要创建 SQL view；exchanges 聚合在应用层用 Prisma 查询后组装
+6. 使用现有 `DATABASE_URL`
+7. 使用 `import prisma from "@my-better-t-app/db"`
+8. 只保存文本 body
+9. binary body 不保存
+10. 如果 body 是二进制，只记录 `bodyKind = "binary_skipped"`、`bodyByteLength` 和 `bodySkippedReason`
+11. 不要因为 body 是二进制就丢掉整条 request/response event；事件本身仍然要保存，只是 `bodyText` 为 `null`
+12. 不要接入 tRPC；collector API 用普通 Route Handler 即可
+13. 不要创建 SQL view；exchanges 聚合在应用层用 Prisma 查询后组装
 
 ---
 
@@ -49,7 +43,7 @@ Surge 的 `http-request` 和 `http-response` script 把捕获到的请求/响应
 | `apps/web/src/app/api/nssurge/route.ts`           | API Route Handler               |
 | `apps/web/src/app/nssurge/page.tsx`               | 页面入口                        |
 | `apps/web/src/app/nssurge/nssurge-dashboard.tsx`  | 仪表盘 UI                       |
-| `apps/web/src/lib/nssurge/schema.ts`              | Zod schema、normalize、脱敏     |
+| `apps/web/src/lib/nssurge/schema.ts`              | Zod schema、normalize           |
 | `apps/web/src/lib/nssurge/repository.ts`          | Prisma 读写                     |
 | `apps/web/src/lib/nssurge/module.ts`              | Surge `.sgmodule` 生成          |
 | `apps/web/public/nssurge/log-request.js`          | Surge request script            |
@@ -237,8 +231,8 @@ export const dynamic = 'force-dynamic'
 6. BigInt 字段写入时用 `BigInt(value)`
 7. API 返回 JSON 前，所有 BigInt 都要转换成 number 或 string（epoch ms 可转 number）
 8. headers 保存为 `JSON.stringify` 后的字符串
-9. `requestHeadersJson` / `responseHeadersJson` 必须是脱敏后的 JSON
-10. `rawJson` 必须是脱敏和过滤后的 JSON
+9. `requestHeadersJson` / `responseHeadersJson` 必须完整保留原 header 值
+10. `rawJson` 必须是 normalize 后的 JSON，并过滤非法 body 编码字段
 
 #### `listNssurgeExchanges(params)`
 
@@ -324,29 +318,23 @@ Query 参数：
 1. 定义 zod schema
 2. 定义 TypeScript 类型
 3. 做 normalize
-4. header 脱敏
+4. headers 规范化为字符串值
 5. body schema 过滤
 6. content-type 提取
 7. host 从 URL 或 payload 提取
 
-### Headers 脱敏（大小写不敏感）
+### Headers 处理
 
-- `cookie`
-- `set-cookie`
-- `authorization`
-- `proxy-authorization`
-- `x-api-key`
-- `x-auth-token`
-
-脱敏值统一为：`"[REDACTED]"`
+1. header 名和值原样保存
+2. `null` / `undefined` 值转为空字符串
+3. 非字符串值用 `String(value)` 转成字符串
 
 ### Body 处理
 
-1. body 不脱敏（用户明确要保存文本 body）
-2. 预留 `redactBodyText(text, contentType)` 函数，默认不启用
-3. `body.kind` 不允许 base64
-4. 脚本误传 base64/sha256 字段时，normalize 后必须删除
-5. `rawJson` 必须基于 normalize 后的数据生成
+1. text body 原样保存
+2. `body.kind` 不允许 base64
+3. 脚本误传 base64/sha256 字段时，normalize 后必须删除
+4. `rawJson` 必须基于 normalize 后的数据生成
 
 ---
 
@@ -514,7 +502,6 @@ hostname = %APPEND% api.example.com
 ## 环境变量
 
 - 不新增 NSSurge 专用 env；数据库继续使用 `DATABASE_URL`
-- **不要**新增 `NSSURGE_DB_PATH`
 
 ---
 
@@ -624,8 +611,8 @@ curl -X POST "http://localhost:3000/api/nssurge" \
 4. 重复上报不产生重复行
 5. text body 保存正确
 6. binary body 不保存，只保存 skipped metadata
-7. headers 脱敏正确
-8. `rawJson` 为 normalize、脱敏后的 JSON，不含非法 body 编码字段
+7. headers 原样保存
+8. `rawJson` 为 normalize 后的 JSON，不含非法 body 编码字段
 9. 页面能看到 demo 请求
 10. 页面能展开请求/响应详情
 11. 页面能生成可复制、可下载的 `.sgmodule`
