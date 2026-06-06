@@ -1,6 +1,6 @@
 # NSSurge Traffic Collector — 实现规格
 
-> 状态：待实现（仅规格文档，未编码）
+> 状态：已实现（本文档为规格 + 实现约定）
 
 ## 背景
 
@@ -37,19 +37,21 @@ Surge 的 `http-request` 和 `http-response` script 把捕获到的请求/响应
 
 新增或修改这些文件：
 
-| 路径                                              | 说明                            |
-| ------------------------------------------------- | ------------------------------- |
-| `packages/db/prisma/schema/nssurge.prisma`        | Prisma 模型与 enum              |
-| `apps/web/src/app/api/nssurge/route.ts`           | API Route Handler               |
-| `apps/web/src/app/nssurge/page.tsx`               | 页面入口                        |
-| `apps/web/src/app/nssurge/nssurge-dashboard.tsx`  | 仪表盘 UI                       |
-| `apps/web/src/lib/nssurge/schema.ts`              | Zod schema、normalize           |
-| `apps/web/src/lib/nssurge/repository.ts`          | Prisma 读写                     |
-| `apps/web/src/lib/nssurge/module.ts`              | Surge `.sgmodule` 生成          |
-| `apps/web/public/nssurge/log-request.js`          | Surge request script            |
-| `apps/web/public/nssurge/log-response.js`         | Surge response script           |
-| `apps/web/.env.example` 或仓库已有 `.env.example` | 环境变量示例                    |
-| `README.md`                                       | 追加 NSSurge collector 使用说明 |
+| 路径                                              | 说明                                  |
+| ------------------------------------------------- | ------------------------------------- |
+| `packages/db/prisma/schema/nssurge.prisma`        | Prisma 模型与 enum                    |
+| `apps/web/src/app/api/nssurge/route.ts`           | API Route Handler                     |
+| `apps/web/src/app/nssurge/page.tsx`               | 页面入口                              |
+| `apps/web/src/app/nssurge/nssurge-dashboard.tsx`  | 仪表盘 UI                             |
+| `apps/web/src/lib/nssurge/schema.ts`              | Zod schema、normalize                 |
+| `apps/web/src/lib/nssurge/repository.ts`          | Prisma 读写                           |
+| `apps/web/src/lib/nssurge/module.ts`              | Surge `.sgmodule` 生成                |
+| `apps/web/src/lib/nssurge/curl.ts`                | exchange → cURL 命令生成              |
+| `apps/web/src/locales/en-US.json`                 | 页面 i18n（与 `zh-CN.json` 同步 key） |
+| `apps/web/public/nssurge/log-request.js`          | Surge request script                  |
+| `apps/web/public/nssurge/log-response.js`         | Surge response script                 |
+| `apps/web/.env.example` 或仓库已有 `.env.example` | 环境变量示例                          |
+| `README.md`                                       | 追加 NSSurge collector 使用说明       |
 
 ---
 
@@ -414,17 +416,18 @@ Next.js 启动后可访问：
 
 ### 生成规则
 
-1. domain 输入支持：`api.example.com`、`*.example.com`、逗号或换行分隔多个
-2. 默认 exact host；`includeSubdomains=true` 时 pattern 匹配子域名
-3. pattern 必须转义正则特殊字符
-4. `script-path`：`${scriptBaseUrl}/log-request.js`、`${scriptBaseUrl}/log-response.js`
-5. `argument` 使用 URL query 格式，`endpoint` 和 `token` 必须 `encodeURIComponent`
-6. `requires-body=true`、`binary-body-mode=true`
-7. `max-size` 默认 `1048576`，`timeout` 默认 `1`
-8. `[MITM]` 默认：`hostname = %APPEND% api.example.com`
-9. `includeSubdomains=true` 且 domain 是 `example.com` → `hostname = %APPEND% example.com, *.example.com`
-10. 用户输入 `*.example.com` 则 hostname 保留 `*.example.com`
-11. 顶部：
+1. domain 输入支持：`api.example.com`、`*.example.com`、完整 URL（如 `https://httpbin.org/`）、逗号或换行分隔多个
+2. 生成前用 `parseDomainHost` 去掉 scheme、路径、尾斜杠，只保留 hostname（及非默认端口）；避免 pattern 出现 `https://https://...`
+3. 默认 exact host；`includeSubdomains=true` 时 pattern 匹配子域名
+4. pattern 必须转义正则特殊字符
+5. `script-path`：`${scriptBaseUrl}/log-request.js`、`${scriptBaseUrl}/log-response.js`
+6. `argument` 使用 URL query 格式，`endpoint` 和 `token` 必须 `encodeURIComponent`
+7. `requires-body=true`、`binary-body-mode=true`
+8. `max-size` 默认 `1048576`，`timeout` 默认 `1`
+9. `[MITM]` 默认：`hostname = %APPEND% api.example.com`（仅 hostname，不含 `https://`）
+10. `includeSubdomains=true` 且 domain 是 `example.com` → `hostname = %APPEND% example.com, *.example.com`
+11. 用户输入 `*.example.com` 则 hostname 保留 `*.example.com`
+12. 顶部：
 
 ```ini
 #!name=NSSurge Collector - <domain summary>
@@ -454,28 +457,35 @@ hostname = %APPEND% api.example.com
 
 路径：`/nssurge`
 
-### 功能
+### 布局
 
-1. 显示最近 HTTP exchanges
-2. 默认每 2 秒 auto refresh，可暂停
-3. 搜索 URL、按 host / status 过滤
-4. limit：100 / 200 / 500 / 1000
-5. 列表默认不加载 body；点击 exchange 后 `withBody=true` 展开详情
-6. 展示：method、url、host、response status、captured times、headers、bodies、body kind、byte length、skipped reason
-7. `bodyKind=binary_skipped` 时显示 “Binary body skipped”，不显示 base64
-8. bodyText 像 JSON 时提供 Pretty / Raw toggle（Raw 保留原始 body）
-9. 顶部统计：total shown、2xx/3xx/4xx/5xx、unique hosts、latest captured time
+单页两个 Tab：**Request list** | **Generate Surge module**（无顶部统计卡片）。
+
+UI 文案走 `react-i18next`，key 为英文 UI 字符串，维护 `en-US.json` / `zh-CN.json`。
+
+### Request list
+
+1. 默认每 2 秒 auto refresh，可暂停；支持 URL 搜索、host / status 过滤、limit 100–1000
+2. 表头列（固定 grid）：**ID** | **Time** (`hh:mm:ss`) | **URL** | **Status** | **Duration**（response − request，如 `42ms` / `1.2s`）
+3. **ID** 即 Surge `$request.id`（`surgeRequestId`）；列表只显示 `-` 后短后缀，悬停 / 详情保留完整值
+4. 列表不加载 body；展开时 `withBody=true` 拉详情
+5. 详情元信息 2×2 网格：上行请求/响应采集时间，下行 ID（左）与 **Copy as cURL**（右）
+6. 详情另含 headers、bodies、body kind、byte length、skipped reason；JSON body 可 Pretty / Raw；`binary_skipped` 不展示 base64
+
+### Copy as cURL
+
+文件：`apps/web/src/lib/nssurge/curl.ts`，函数 `exchangeToCurl(exchange)`。
+
+1. 由 method、URL、请求头、text body 生成 bash curl；`-X`、`-H '…'`、`--data-raw '…'` 各占一行（`-H` 与 header 值不可拆行）
+2. 跳过 `host`、`content-length`、HTTP/2 伪头等；binary / 跳过的 body 不含 `--data-raw`
+3. 展开详情后点击复制；加载 body 期间按钮禁用
 
 ### UI 风格
 
-- 参考 geekdada/yasd Request List 信息密度与交互
-- **不要**接入 Surge HTTP API
-- **不要**请求 `/v1/requests/recent`
-- **不要**复用 YASD 的 `RequestItem` 类型
-- 使用模板已有 Tailwind / shadcn/ui / lucide-react
-- 缺少的 shadcn component 用 HTML + Tailwind
+- 参考 geekdada/yasd 信息密度，**不**接入 Surge HTTP API / `/v1/requests/recent`
+- Tailwind / shadcn/ui / lucide-react
 
-### Generate Surge Module 表单
+### Generate Surge Module 表单（第二个 Tab）
 
 | 字段               | 默认                                           |
 | ------------------ | ---------------------------------------------- |
@@ -613,12 +623,13 @@ curl -X POST "http://localhost:3000/api/nssurge" \
 6. binary body 不保存，只保存 skipped metadata
 7. headers 原样保存
 8. `rawJson` 为 normalize 后的 JSON，不含非法 body 编码字段
-9. 页面能看到 demo 请求
-10. 页面能展开请求/响应详情
-11. 页面能生成可复制、可下载的 `.sgmodule`
-12. `pnpm db:generate` 通过
-13. TypeScript 通过
-14. `pnpm build` 尽量通过
+9. 页面列表列为 ID / Time / URL / Status / Duration
+10. 页面能展开详情并 Copy as cURL
+11. 输入 `https://host/` 生成 module 时 pattern / MITM hostname 正确
+12. 页面能生成可复制、可下载的 `.sgmodule`
+13. `pnpm db:generate` 通过
+14. TypeScript 通过
+15. `pnpm build` 尽量通过
 
 ---
 

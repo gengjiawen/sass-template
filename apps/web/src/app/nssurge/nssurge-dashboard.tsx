@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { exchangeToCurl } from '@/lib/nssurge/curl'
 import { generateSurgeModule, parseDomains } from '@/lib/nssurge/module'
 import type { NssurgeExchange } from '@/lib/nssurge/repository'
 import { cn } from '@/lib/utils'
@@ -15,7 +16,7 @@ import { cn } from '@/lib/utils'
 const LIMIT_OPTIONS = [100, 200, 500, 1000] as const
 
 const EXCHANGE_LIST_GRID =
-  'grid grid-cols-[4.5rem_4rem_minmax(0,1fr)_3rem_4.5rem] items-center gap-x-3'
+  'grid grid-cols-[3.5rem_4rem_minmax(0,1fr)_3rem_4.5rem] items-center gap-x-3'
 
 type ExchangesResponse = {
   view: string
@@ -39,6 +40,13 @@ function formatTimeHms(ms: number | null, empty = '—'): string {
   const m = String(d.getMinutes()).padStart(2, '0')
   const s = String(d.getSeconds()).padStart(2, '0')
   return `${h}:${m}:${s}`
+}
+
+/** Surge `$request.id` is often `sessionPrefix-localId`; list shows the short suffix. */
+function formatSurgeRequestIdDisplay(surgeRequestId: string): string {
+  const dash = surgeRequestId.lastIndexOf('-')
+  if (dash === -1 || dash === surgeRequestId.length - 1) return surgeRequestId
+  return surgeRequestId.slice(dash + 1)
 }
 
 function formatDuration(requestMs: number | null, responseMs: number | null, empty = '—'): string {
@@ -154,6 +162,12 @@ function ExchangeRow({
   const empty = t('—')
   const capturedAtMs = data.responseCapturedAtMs ?? data.requestCapturedAtMs
 
+  const handleCopyCurl = async () => {
+    const curl = exchangeToCurl(data)
+    if (!curl) return
+    await navigator.clipboard.writeText(curl)
+  }
+
   return (
     <div className="border-b border-border/60">
       <button
@@ -166,7 +180,7 @@ function ExchangeRow({
           className="truncate font-mono text-xs tabular-nums text-muted-foreground"
           title={data.surgeRequestId}
         >
-          {data.surgeRequestId}
+          {formatSurgeRequestIdDisplay(data.surgeRequestId)}
         </span>
         <span className="font-mono text-xs tabular-nums">{formatTimeHms(capturedAtMs, empty)}</span>
         <span className="min-w-0 truncate font-mono text-xs">{data.url}</span>
@@ -184,8 +198,8 @@ function ExchangeRow({
       </button>
       {expanded && (
         <div className="space-y-4 border-t bg-muted/20 px-3 py-3 text-sm">
-          {loadingDetail && <p className="text-muted-foreground">{t('Loading bodies…')}</p>}
-          <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+          {loadingDetail && <p className="text-xs text-muted-foreground">{t('Loading bodies…')}</p>}
+          <div className="grid gap-x-4 gap-y-2 text-xs text-muted-foreground sm:grid-cols-2">
             <div>
               {t('Request captured: {{time}}', {
                 time: formatTime(data.requestCapturedAtMs, empty),
@@ -196,7 +210,21 @@ function ExchangeRow({
                 time: formatTime(data.responseCapturedAtMs, empty),
               })}
             </div>
-            <div className="sm:col-span-2">{t('ID: {{id}}', { id: data.surgeRequestId })}</div>
+            <div className="flex min-w-0 items-center">
+              {t('ID: {{id}}', { id: data.surgeRequestId })}
+            </div>
+            <div className="flex items-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="xs"
+                disabled={loadingDetail}
+                onClick={() => void handleCopyCurl()}
+              >
+                <Copy />
+                {t('Copy as cURL')}
+              </Button>
+            </div>
           </div>
           {data.requestHeadersJson && (
             <div>

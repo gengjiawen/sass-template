@@ -72,6 +72,7 @@
   "globally — scope domains narrowly.": "，请尽量缩小域名范围。",
   "Generate .sgmodule": "生成 .sgmodule",
   "Copy": "复制",
+  "Copy as cURL": "复制为 cURL",
   "Download": "下载",
   "kind: {{kind}}": "类型：{{kind}}",
   "{{count}} bytes": "{{count}} 字节",
