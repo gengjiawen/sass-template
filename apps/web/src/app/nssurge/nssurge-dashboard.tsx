@@ -277,7 +277,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
   const [detailById, setDetailById] = useState<Record<string, NssurgeExchange>>({})
   const [loadingDetailId, setLoadingDetailId] = useState<string | null>(null)
 
-  const [domainsInput, setDomainsInput] = useState('api.example.com')
+  const [domainsInput, setDomainsInput] = useState('https://tooling-one.vercel.app/httpbin')
   const [includeSubdomains, setIncludeSubdomains] = useState(false)
   const [protocol, setProtocol] = useState<'https' | 'http' | 'both'>('https')
   const [collectorEndpoint, setCollectorEndpoint] = useState('')
