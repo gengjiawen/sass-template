@@ -14,7 +14,6 @@
   "examples": [],
   "auth": "better-auth",
   "payments": "none",
-  "packageManager": "pnpm",
   "dbSetup": "none",
   "api": "trpc",
   "webDeploy": "none",

@@ -18,6 +18,10 @@
     "db:migrate": "pnpm --filter @my-better-t-app/db db:migrate",
     "db:migrate:deploy": "pnpm --filter @my-better-t-app/db db:migrate:deploy",
     "db:local": "pnpm --filter @my-better-t-app/db db:local",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "check": "oxlint && oxfmt --write",
     "prepare": "husky"
   },
@@ -28,29 +32,17 @@
   },
   "devDependencies": {
     "@my-better-t-app/config": "workspace:*",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
     "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "^4.1.8"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs,json,jsonc,md,mdx}": "oxfmt --write"
   },
-  "packageManager": "pnpm@10.33.4+sha512.1c67b3b359b2d408119ba1ed289f34b8fc3c6873412bec6fd264fbdc82489e510fcbecb9ce9d22dae7f3b76269d8441046014bdca53b9979cd7a561ad631b800",
-  "pnpm": {
-    "overrides": {
-      "fast-uri": "3.1.2",
-      "kysely": "0.28.17",
-      "lodash-es": "4.18.1"
-    },
-    "onlyBuiltDependencies": [
-      "@prisma/engines",
-      "esbuild",
-      "msw",
-      "prisma",
-      "sharp"
-    ]
-  }
+  "packageManager": "pnpm@11.5.0"
 }
