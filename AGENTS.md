@@ -26,6 +26,13 @@ This is a pnpm monorepo (Next.js + tRPC + Prisma + SQLite + Better-Auth) with th
 
 tRPC lives in `apps/web/src/server/api/` (not a separate `packages/api` package). Client tRPC utils: `apps/web/src/utils/trpc.ts`.
 
+### Auth
+
+- Stack: Better-Auth with email/password; API route `/api/auth/[...all]`. Client: `apps/web/src/lib/auth-client.ts`.
+- Code: `packages/auth/` (`betterAuth` config, `admin()` plugin). User model adds `apiToken` (auto-generated) and `role` (`user` | `admin`) in `packages/db/prisma/schema/auth.prisma`.
+- Optional env `ADMIN_CREDENTIALS` (`email:password`, password ≥ 8 chars): on startup, `packages/auth/src/init-admin.ts` creates or syncs an admin user with that credential.
+- UI: `/login` (sign-in/sign-up forms); post-login redirect to `/dashboard`, which shows the signed-in user's `apiToken` for copy (used by NSSurge in production).
+
 ### i18n conventions
 
 - Stack: `i18next` + `react-i18next` + Jotai; init in `apps/web/src/i18n.ts`, wired via `I18nProvider` in `providers.tsx`.
@@ -44,8 +51,8 @@ tRPC lives in `apps/web/src/server/api/` (not a separate `packages/api` package)
 
 ### NSSurge Collector
 
-- Routes: `POST/GET/DELETE /api/nssurge`; dashboard `/nssurge`; Surge scripts `/nssurge/log-request.js`, `/nssurge/log-response.js`.
-- Code: `apps/web/src/lib/nssurge/`, `apps/web/src/app/api/nssurge/route.ts`, `packages/db/prisma/schema/nssurge.prisma`.
+- Routes: `POST/GET/DELETE /api/nssurge`; `GET/POST /api/nssurge/modules`; `GET/DELETE /api/nssurge/modules/[key]` (`.sgmodule` suffix accepted); dashboard `/nssurge`; Surge scripts `/nssurge/log-request.js`, `/nssurge/log-response.js`.
+- Code: `apps/web/src/lib/nssurge/`, `apps/web/src/app/api/nssurge/route.ts`, `apps/web/src/app/api/nssurge/modules/`, `packages/db/prisma/schema/nssurge.prisma`.
 - Auth: local development can use the internal NSSurge dev user without a token; production uses each user's `apiToken`. Limits are code constants. Uses existing `DATABASE_URL` via Prisma — no separate SQLite file.
 - Spec: `plan/nssurge-collector.md`.
 
