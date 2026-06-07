@@ -11,9 +11,9 @@ COPY packages/env/package.json packages/env/
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
 
 COPY . .
-RUN pnpm install --frozen-lockfile
+RUN cp .env.example .env && pnpm install --frozen-lockfile && rm .env
 ENV NODE_ENV=production
-RUN pnpm run build
+RUN cp .env.example .env && pnpm run build && rm .env
 
 EXPOSE 3000
 CMD ["pnpm", "run", "--filter", "web", "start"]
