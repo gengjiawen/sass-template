@@ -1,7 +1,7 @@
 import { auth } from '@my-better-t-app/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { authClient } from '@/lib/auth-client'
+import { ensureUserApiToken } from '@/lib/nssurge/auth'
 import DashboardView from './dashboard-view'
 
 export default async function DashboardPage() {
@@ -13,5 +13,7 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  return <DashboardView session={session} />
+  const apiToken = await ensureUserApiToken(session.user.id)
+
+  return <DashboardView apiToken={apiToken} session={session} />
 }

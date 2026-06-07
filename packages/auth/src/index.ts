@@ -1,13 +1,13 @@
-import { randomBytes } from 'node:crypto'
 import prisma from '@my-better-t-app/db'
 import { env } from '@my-better-t-app/env/server'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { nextCookies } from 'better-auth/next-js'
+import { admin } from 'better-auth/plugins'
+import { ensureConfiguredAdminUser } from './init-admin'
+import { generateUserApiToken } from './token'
 
-export function generateUserApiToken(): string {
-  return `nss_${randomBytes(32).toString('hex')}`
-}
+export { generateUserApiToken } from './token'
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -30,5 +30,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [nextCookies()],
+  plugins: [admin(), nextCookies()],
 })
+
+await ensureConfiguredAdminUser()
