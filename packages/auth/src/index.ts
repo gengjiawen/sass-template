@@ -14,7 +14,7 @@ export const auth = betterAuth({
     provider: 'sqlite',
   }),
 
-  trustedOrigins: [env.CORS_ORIGIN],
+  trustedOrigins: [env.BETTER_AUTH_URL],
   user: {
     additionalFields: {
       apiToken: {
