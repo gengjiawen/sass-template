@@ -54,5 +54,6 @@
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.3.0",
     "typescript": "catalog:"
-  }
+  },
+  "packageManager": "pnpm@11.5.0"
 }
