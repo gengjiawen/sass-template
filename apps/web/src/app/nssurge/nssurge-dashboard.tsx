@@ -787,51 +787,6 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
               )}
 
               {savedError && <p className="text-xs text-destructive">{savedError}</p>}
-
-              {savedModules.length > 0 && (
-                <div className="space-y-2 border-t pt-4">
-                  <p className="text-sm font-medium">{t('Saved modules')}</p>
-                  <div className="space-y-1">
-                    {savedModules.map((m) => (
-                      <div
-                        key={m.key}
-                        className="flex items-center gap-2 rounded border bg-muted/20 px-3 py-2 text-xs"
-                      >
-                        <span className="font-mono font-medium">{m.key}</span>
-                        <span className="text-muted-foreground">
-                          {new Date(m.createdAt).toLocaleDateString()}
-                        </span>
-                        <code className="flex-1 truncate text-muted-foreground">{`${origin}${m.url}`}</code>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="xs"
-                          aria-label={t('Copy module URL')}
-                          title={t('Copy module URL')}
-                          onClick={async () => {
-                            await navigator.clipboard.writeText(`${origin}${m.url}`)
-                          }}
-                        >
-                          <Copy />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="xs"
-                          aria-label={t('Delete module')}
-                          title={t('Delete module')}
-                          onClick={() => void handleDeleteModule(m.key)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {loadingSaved && (
-                <p className="text-xs text-muted-foreground">{t('Loading saved…')}</p>
-              )}
             </div>
           )}
         </CardContent>
