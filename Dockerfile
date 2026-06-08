@@ -16,4 +16,4 @@ ENV NODE_ENV=production
 RUN cp .env.example .env && pnpm run build && rm .env
 
 EXPOSE 3000
-CMD ["sh", "-c", "cp .env.example .env && exec pnpm run --filter web start"]
+CMD ["sh", "-c", "[ -f .env ] || cp .env.example .env; exec pnpm run --filter web start"]
