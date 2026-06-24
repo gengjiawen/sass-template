@@ -3,6 +3,7 @@
 import { Copy, Download, Link, Pause, Play, RefreshCw, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ShikiCodeBlock } from '@/components/shiki-code-block'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -165,9 +166,13 @@ function BodyPanel({
       {bodyKind === 'binary_skipped' ? (
         <p className="text-sm text-amber-700 dark:text-amber-300">{t('Binary body skipped')}</p>
       ) : bodyText ? (
-        <pre className="max-h-80 overflow-auto rounded border bg-muted/40 p-2 font-mono text-xs whitespace-pre-wrap break-all">
-          {displayText}
-        </pre>
+        isJsonLike ? (
+          <ShikiCodeBlock code={displayText} className="max-h-80" />
+        ) : (
+          <pre className="max-h-80 overflow-auto rounded border bg-muted/40 p-2 font-mono text-xs whitespace-pre-wrap break-all">
+            {displayText}
+          </pre>
+        )
       ) : (
         <p className="text-sm text-muted-foreground">{t('No body')}</p>
       )}
@@ -320,9 +325,10 @@ function ExchangeDetailPanel({
           {data.requestHeadersJson && (
             <div>
               <p className="mb-1 text-xs font-medium">{t('Request headers')}</p>
-              <pre className="max-h-40 overflow-auto rounded border bg-background p-2 font-mono text-xs">
-                {JSON.stringify(JSON.parse(data.requestHeadersJson), null, 2)}
-              </pre>
+              <ShikiCodeBlock
+                code={JSON.stringify(JSON.parse(data.requestHeadersJson), null, 2)}
+                className="max-h-40"
+              />
             </div>
           )}
           <BodyPanel
@@ -341,9 +347,10 @@ function ExchangeDetailPanel({
           {data.responseHeadersJson && (
             <div>
               <p className="mb-1 text-xs font-medium">{t('Response headers')}</p>
-              <pre className="max-h-40 overflow-auto rounded border bg-background p-2 font-mono text-xs">
-                {JSON.stringify(JSON.parse(data.responseHeadersJson), null, 2)}
-              </pre>
+              <ShikiCodeBlock
+                code={JSON.stringify(JSON.parse(data.responseHeadersJson), null, 2)}
+                className="max-h-40"
+              />
             </div>
           )}
           <BodyPanel
