@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
 const LIMIT_OPTIONS = [100, 200, 500, 1000] as const
 
 const EXCHANGE_LIST_GRID =
-  'grid grid-cols-[3.5rem_4rem_minmax(0,1fr)_3rem_4.5rem] items-center gap-x-3'
+  'grid grid-cols-[3rem_3.5rem_minmax(0,1fr)_2.75rem_4rem] items-start gap-x-2'
 
 type ExchangesResponse = {
   view: string
@@ -64,6 +64,56 @@ function statusClass(status: number | null): string {
   if (status >= 300 && status < 400) return 'text-blue-600 dark:text-blue-400'
   if (status >= 400 && status < 500) return 'text-amber-600 dark:text-amber-400'
   return 'text-red-600 dark:text-red-400'
+}
+
+function parseListUrlPath(url: string): string {
+  try {
+    const parsed = new URL(url)
+    const path = `${parsed.pathname}${parsed.search}${parsed.hash}`
+    return path || '/'
+  } catch {
+    return url
+  }
+}
+
+function resolveListUrlHost(url: string, host: string | null): string | null {
+  if (host) return host
+  try {
+    return new URL(url).host
+  } catch {
+    return null
+  }
+}
+
+function ExchangeUrlCell({
+  url,
+  host,
+  method,
+}: {
+  url: string
+  host: string | null
+  method: string | null
+}) {
+  const path = useMemo(() => parseListUrlPath(url), [url])
+  const displayHost = useMemo(() => resolveListUrlHost(url, host), [url, host])
+
+  return (
+    <span className="min-w-0 font-mono text-xs leading-snug">
+      <span className="line-clamp-2 break-all">
+        {method ? (
+          <>
+            <span className="font-semibold text-muted-foreground">{method}</span>{' '}
+          </>
+        ) : null}
+        {path}
+      </span>
+      {displayHost ? (
+        <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">
+          {displayHost}
+        </span>
+      ) : null}
+    </span>
+  )
 }
 
 function BodyPanel({
@@ -115,7 +165,7 @@ function BodyPanel({
       {bodyKind === 'binary_skipped' ? (
         <p className="text-sm text-amber-700 dark:text-amber-300">{t('Binary body skipped')}</p>
       ) : bodyText ? (
-        <pre className="max-h-64 overflow-auto rounded border bg-muted/40 p-2 font-mono text-xs whitespace-pre-wrap break-all">
+        <pre className="max-h-80 overflow-auto rounded border bg-muted/40 p-2 font-mono text-xs whitespace-pre-wrap break-all">
           {displayText}
         </pre>
       ) : (
@@ -146,21 +196,63 @@ function ExchangeListHeader() {
 
 function ExchangeRow({
   exchange,
-  expanded,
-  onToggle,
+  selected,
+  onSelect,
+}: {
+  exchange: NssurgeExchange
+  selected: boolean
+  onSelect: () => void
+}) {
+  const { t } = useTranslation()
+  const empty = t('—')
+  const capturedAtMs = exchange.responseCapturedAtMs ?? exchange.requestCapturedAtMs
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      title={exchange.url}
+      className={cn(
+        EXCHANGE_LIST_GRID,
+        'w-full border-b border-border/60 px-3 py-2 text-left text-sm hover:bg-muted/40',
+        selected && 'border-l-2 border-l-primary bg-primary/10 hover:bg-primary/15',
+      )}
+    >
+      <span
+        className="truncate pt-0.5 font-mono text-xs tabular-nums text-muted-foreground"
+        title={exchange.surgeRequestId}
+      >
+        {formatSurgeRequestIdDisplay(exchange.surgeRequestId)}
+      </span>
+      <span className="font-mono text-xs tabular-nums">{formatTimeHms(capturedAtMs, empty)}</span>
+      <ExchangeUrlCell url={exchange.url} host={exchange.host} method={exchange.method} />
+      <span
+        className={cn(
+          'pt-0.5 text-right font-mono text-xs font-semibold tabular-nums',
+          statusClass(exchange.responseStatus),
+        )}
+      >
+        {exchange.responseStatus ?? empty}
+      </span>
+      <span className="pt-0.5 text-right font-mono text-xs tabular-nums text-muted-foreground">
+        {formatDuration(exchange.requestCapturedAtMs, exchange.responseCapturedAtMs, empty)}
+      </span>
+    </button>
+  )
+}
+
+function ExchangeDetailPanel({
+  exchange,
   detail,
   loadingDetail,
 }: {
   exchange: NssurgeExchange
-  expanded: boolean
-  onToggle: () => void
   detail: NssurgeExchange | null
   loadingDetail: boolean
 }) {
   const { t } = useTranslation()
   const data = detail ?? exchange
   const empty = t('—')
-  const capturedAtMs = data.responseCapturedAtMs ?? data.requestCapturedAtMs
 
   const handleCopyCurl = async () => {
     const curl = exchangeToCurl(data)
@@ -169,76 +261,67 @@ function ExchangeRow({
   }
 
   return (
-    <div className="border-b border-border/60">
-      <button
-        type="button"
-        onClick={onToggle}
-        title={data.url}
-        className={cn(EXCHANGE_LIST_GRID, 'w-full px-3 py-2 text-left text-sm hover:bg-muted/40')}
-      >
-        <span
-          className="truncate font-mono text-xs tabular-nums text-muted-foreground"
-          title={data.surgeRequestId}
-        >
-          {formatSurgeRequestIdDisplay(data.surgeRequestId)}
-        </span>
-        <span className="font-mono text-xs tabular-nums">{formatTimeHms(capturedAtMs, empty)}</span>
-        <span className="min-w-0 truncate font-mono text-xs">{data.url}</span>
-        <span
-          className={cn(
-            'text-right font-mono text-xs font-semibold tabular-nums',
-            statusClass(data.responseStatus),
-          )}
-        >
-          {data.responseStatus ?? empty}
-        </span>
-        <span className="text-right font-mono text-xs tabular-nums text-muted-foreground">
-          {formatDuration(data.requestCapturedAtMs, data.responseCapturedAtMs, empty)}
-        </span>
-      </button>
-      {expanded && (
-        <div className="space-y-4 border-t bg-muted/20 px-3 py-3 text-sm">
-          {loadingDetail && <p className="text-xs text-muted-foreground">{t('Loading bodies…')}</p>}
-          <div className="grid gap-x-4 gap-y-2 text-xs text-muted-foreground sm:grid-cols-2">
-            <div>
-              {t('Request captured: {{time}}', {
-                time: formatTime(data.requestCapturedAtMs, empty),
-              })}
-            </div>
-            <div>
-              {t('Response captured: {{time}}', {
-                time: formatTime(data.responseCapturedAtMs, empty),
-              })}
-            </div>
-            <div className="flex min-w-0 items-center">
-              {t('ID: {{id}}', { id: data.surgeRequestId })}
-            </div>
-            <div className="flex items-center">
-              <Button
-                type="button"
-                variant="outline"
-                size="xs"
-                disabled={loadingDetail}
-                onClick={() => void handleCopyCurl()}
+    <div className="space-y-4 p-4 text-sm">
+      <div className="space-y-2 border-b border-border/60 pb-3">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0 space-y-1">
+            <p className="font-mono text-xs break-all text-muted-foreground">{data.url}</p>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-semibold">{data.method ?? empty}</span>
+              <span
+                className={cn(
+                  'font-mono font-semibold tabular-nums',
+                  statusClass(data.responseStatus),
+                )}
               >
-                <Copy />
-                {t('Copy as cURL')}
-              </Button>
+                {data.responseStatus ?? empty}
+              </span>
+              <span className="text-muted-foreground">
+                {formatDuration(data.requestCapturedAtMs, data.responseCapturedAtMs, empty)}
+              </span>
             </div>
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="xs"
+            disabled={loadingDetail}
+            onClick={() => void handleCopyCurl()}
+          >
+            <Copy />
+            {t('Copy as cURL')}
+          </Button>
+        </div>
+      </div>
+
+      {loadingDetail && <p className="text-xs text-muted-foreground">{t('Loading bodies…')}</p>}
+
+      <div className="grid gap-x-4 gap-y-2 text-xs text-muted-foreground sm:grid-cols-2">
+        <div>
+          {t('Request captured: {{time}}', {
+            time: formatTime(data.requestCapturedAtMs, empty),
+          })}
+        </div>
+        <div>
+          {t('Response captured: {{time}}', {
+            time: formatTime(data.responseCapturedAtMs, empty),
+          })}
+        </div>
+        <div className="flex min-w-0 items-center sm:col-span-2">
+          {t('ID: {{id}}', { id: data.surgeRequestId })}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-3">
+          <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            {t('Request')}
+          </h3>
           {data.requestHeadersJson && (
             <div>
               <p className="mb-1 text-xs font-medium">{t('Request headers')}</p>
               <pre className="max-h-40 overflow-auto rounded border bg-background p-2 font-mono text-xs">
                 {JSON.stringify(JSON.parse(data.requestHeadersJson), null, 2)}
-              </pre>
-            </div>
-          )}
-          {data.responseHeadersJson && (
-            <div>
-              <p className="mb-1 text-xs font-medium">{t('Response headers')}</p>
-              <pre className="max-h-40 overflow-auto rounded border bg-background p-2 font-mono text-xs">
-                {JSON.stringify(JSON.parse(data.responseHeadersJson), null, 2)}
               </pre>
             </div>
           )}
@@ -249,6 +332,20 @@ function ExchangeRow({
             byteLength={data.requestBodyByteLength}
             skippedReason={data.requestBodySkippedReason}
           />
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            {t('Response')}
+          </h3>
+          {data.responseHeadersJson && (
+            <div>
+              <p className="mb-1 text-xs font-medium">{t('Response headers')}</p>
+              <pre className="max-h-40 overflow-auto rounded border bg-background p-2 font-mono text-xs">
+                {JSON.stringify(JSON.parse(data.responseHeadersJson), null, 2)}
+              </pre>
+            </div>
+          )}
           <BodyPanel
             label={t('Response body')}
             bodyKind={data.responseBodyKind}
@@ -257,7 +354,7 @@ function ExchangeRow({
             skippedReason={data.responseBodySkippedReason}
           />
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -273,7 +370,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
   const [hostFilter, setHostFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [q, setQ] = useState('')
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailById, setDetailById] = useState<Record<string, NssurgeExchange>>({})
   const [loadingDetailId, setLoadingDetailId] = useState<string | null>(null)
 
@@ -377,14 +474,19 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
     return () => window.clearInterval(id)
   }, [autoRefresh, fetchExchanges, origin])
 
-  const handleToggle = (id: string) => {
-    if (expandedId === id) {
-      setExpandedId(null)
+  const handleSelect = (id: string) => {
+    if (selectedId === id) {
+      setSelectedId(null)
       return
     }
-    setExpandedId(id)
+    setSelectedId(id)
     if (!detailById[id]) void fetchExchangeDetail(id)
   }
+
+  const selectedExchange = useMemo(() => {
+    if (!selectedId) return null
+    return items.find((i) => i.surgeRequestId === selectedId) ?? detailById[selectedId] ?? null
+  }, [selectedId, items, detailById])
 
   const handleGenerateModule = () => {
     const domains = parseDomains(domainsInput)
@@ -488,7 +590,7 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{t('NSSurge Collector')}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -610,23 +712,41 @@ export default function NssurgeDashboard({ apiToken, isAuthenticated }: NssurgeD
 
               {error && <p className="px-3 text-sm text-destructive">{error}</p>}
 
-              <div className="max-h-[32rem] overflow-auto border-t">
-                {items.length === 0 && !loading && (
-                  <p className="p-4 text-sm text-muted-foreground">
-                    {t('No exchanges yet. POST events via Surge or curl.')}
-                  </p>
-                )}
-                {items.length > 0 && <ExchangeListHeader />}
-                {items.map((item) => (
-                  <ExchangeRow
-                    key={item.surgeRequestId}
-                    exchange={item}
-                    expanded={expandedId === item.surgeRequestId}
-                    onToggle={() => handleToggle(item.surgeRequestId)}
-                    detail={detailById[item.surgeRequestId] ?? null}
-                    loadingDetail={loadingDetailId === item.surgeRequestId}
-                  />
-                ))}
+              <div className="flex min-h-[28rem] flex-col border-t lg:min-h-[calc(100vh-14rem)] lg:flex-row">
+                <div className="flex min-h-0 flex-col lg:w-[min(100%,32rem)] lg:shrink-0 lg:border-r">
+                  <div className="min-h-0 flex-1 overflow-auto lg:max-h-[calc(100vh-14rem)]">
+                    {items.length === 0 && !loading && (
+                      <p className="p-4 text-sm text-muted-foreground">
+                        {t('No exchanges yet. POST events via Surge or curl.')}
+                      </p>
+                    )}
+                    {items.length > 0 && <ExchangeListHeader />}
+                    {items.map((item) => (
+                      <ExchangeRow
+                        key={item.surgeRequestId}
+                        exchange={item}
+                        selected={selectedId === item.surgeRequestId}
+                        onSelect={() => handleSelect(item.surgeRequestId)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-auto border-t lg:max-h-[calc(100vh-14rem)] lg:border-t-0">
+                  {selectedExchange ? (
+                    <ExchangeDetailPanel
+                      exchange={selectedExchange}
+                      detail={selectedId ? (detailById[selectedId] ?? null) : null}
+                      loadingDetail={selectedId != null && loadingDetailId === selectedId}
+                    />
+                  ) : (
+                    <div className="flex h-full min-h-48 items-center justify-center p-6">
+                      <p className="text-sm text-muted-foreground">
+                        {t('Select a request to view details')}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}
