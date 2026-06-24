@@ -59,6 +59,22 @@ function formatDuration(requestMs: number | null, responseMs: number | null, emp
   return `${(delta / 60_000).toFixed(1)}m`
 }
 
+/** GNU ls -h style (base 1024): 512B, 1.5K, 96K, 2M, … */
+function formatByteSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes}B`
+  const units = ['K', 'M', 'G', 'T'] as const
+  let value = bytes / 1024
+  let unitIndex = 0
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024
+    unitIndex++
+  }
+  if (value >= 10 || Number.isInteger(value)) {
+    return `${Math.round(value)}${units[unitIndex]}`
+  }
+  return `${value.toFixed(1).replace(/\.0$/, '')}${units[unitIndex]}`
+}
+
 function statusClass(status: number | null): string {
   if (status == null) return 'text-muted-foreground'
   if (status >= 200 && status < 300) return 'text-green-600 dark:text-green-400'
@@ -155,7 +171,11 @@ function BodyPanel({
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <span className="font-medium text-foreground">{label}</span>
         <span>{t('kind: {{kind}}', { kind: bodyKind ?? empty })}</span>
-        {byteLength != null && <span>{t('{{count}} bytes', { count: byteLength })}</span>}
+        {byteLength != null && (
+          <span title={t('{{count}} bytes', { count: byteLength })}>
+            {formatByteSize(byteLength)}
+          </span>
+        )}
         {skippedReason && <span>{t('reason: {{reason}}', { reason: skippedReason })}</span>}
         {isJsonLike && bodyText && (
           <Button type="button" variant="outline" size="xs" onClick={() => setPretty((v) => !v)}>
