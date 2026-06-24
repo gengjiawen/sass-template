@@ -49,8 +49,15 @@ function getContentType(headers) {
   return ''
 }
 
+function mediaType(contentType) {
+  return String(contentType || '')
+    .split(';')[0]
+    .trim()
+    .toLowerCase()
+}
+
 function isBinaryContentType(contentType) {
-  const ct = (contentType || '').toLowerCase()
+  const ct = mediaType(contentType)
   if (!ct) return false
   if (ct.startsWith('image/')) return true
   if (ct.startsWith('video/')) return true
@@ -63,7 +70,7 @@ function isBinaryContentType(contentType) {
 }
 
 function isTextContentType(contentType) {
-  const ct = (contentType || '').toLowerCase()
+  const ct = mediaType(contentType)
   if (!ct) return false
   if (ct.startsWith('text/')) return true
   if (ct === 'application/json') return true
