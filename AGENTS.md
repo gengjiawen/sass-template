@@ -71,7 +71,12 @@ tRPC lives in `apps/web/src/server/api/` (not a separate `packages/api` package)
 ### Important notes
 
 - **pnpm build scripts**: The `pnpm.onlyBuiltDependencies` field in root `package.json` must list packages that need postinstall scripts (prisma, @prisma/engines, esbuild, sharp). Without this, pnpm 10+ blocks their scripts and the build fails on Vercel.
-- **`check-types`** is defined in root `package.json` but no workspace packages have that script; it will fail with `ERR_PNPM_RECURSIVE_RUN_NO_SCRIPT`. Use `pnpm run build` to verify type correctness instead.
+- **TypeScript 7 (native `tsc`)**: The `typescript` catalog entry is pure TS 7 (the Go-native compiler), which ships only the `tsc` CLI — the programmatic JS API does not land until TS 7.1. Consequences:
+  - Type-check with the native compiler: `pnpm exec tsc --noEmit` (per package). It is fast but enforces every `tsconfig` option strictly.
+  - Next.js cannot run its build-time type check (it needs the missing JS API), so `apps/web/next.config.ts` sets `typescript.ignoreBuildErrors: true`. This means `pnpm run build` compiles but does **not** type-check — use `tsc` for that.
+  - `next dev`/`next build` print a harmless `"It looks like you're trying to use TypeScript…"` line and briefly re-resolve deps on startup; this is expected under TS 7 and does not break the build (the lockfile is unchanged; `pnpm install --frozen-lockfile` stays green).
+- **`check-types`** root script (`pnpm -r check-types`) still fails with `ERR_PNPM_RECURSIVE_RUN_NO_SCRIPT` because no workspace package defines that script. Type-check with `pnpm exec tsc --noEmit` inside a package instead.
+- **pnpm release-age gate**: `minimumReleaseAge: 0` in `pnpm-workspace.yaml` disables pnpm's new-release cooldown. Without it, `pnpm install` rewrites the workspace file with a large auto-generated `minimumReleaseAgeExclude` list for TS 7's platform binaries.
 - **Postinstall** in `apps/web` runs `fumadocs-mdx`, `prisma generate`, and `prisma migrate deploy` automatically — no manual DB setup needed after `pnpm install`.
 - **Environment**: `.env` at project root provides all required vars with dev defaults. No secrets needed for local development.
 - **GitHub Artifact Mirror**: `/api/mirror`; optional env `GITHUB_MIRROR_DOWNLOAD_DIR` for cache path.

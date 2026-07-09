@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
   },
   typedRoutes: true,
   reactCompiler: true,
+  // TypeScript 7.0 ships only the native `tsc` CLI; the programmatic JS API that
+  // Next.js uses for its build-time type check does not land until TS 7.1. Disable
+  // Next's type check and rely on the native `tsc` compiler for type safety instead.
+  typescript: { ignoreBuildErrors: true },
   async rewrites() {
     return [
       {
