@@ -4,7 +4,7 @@ packages:
 catalog:
   dotenv: ^17.4.2
   zod: ^4.4.3
-  typescript: ^6
+  typescript: ^7
   "@prisma/client": ^7.8.0
   "@trpc/server": ^11.17.0
   "@trpc/client": ^11.17.0
@@ -27,3 +27,4 @@ allowBuilds:
   msw: true
   prisma: true
   sharp: true
+minimumReleaseAge: 0
