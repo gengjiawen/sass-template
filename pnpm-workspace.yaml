@@ -8,7 +8,7 @@ catalog:
   "@prisma/client": ^7.8.0
   "@trpc/server": ^11.17.0
   "@trpc/client": ^11.17.0
-  better-auth: ^1.6.13
+  better-auth: ^1.6.22
 overrides:
   fast-uri: 3.1.2
   hono: 4.12.25
