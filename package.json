@@ -33,7 +33,7 @@
   "devDependencies": {
     "@my-better-t-app/config": "workspace:*",
     "@playwright/test": "^1.62.1",
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.1.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
     "oxfmt": "^0.62.0",
