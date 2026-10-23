@@ -5,16 +5,15 @@ catalog:
   dotenv: ^17.4.2
   zod: ^4.4.3
   typescript: 7.1.0-beta
-  "@prisma/client": ^7.10.0
+  "@prisma/client": ^7.10.1
   "@trpc/server": ^11.18.0
   "@trpc/client": ^11.18.0
   better-auth: ^1.7.2
 overrides:
-  fast-uri: 3.1.2
-  hono: 4.12.25
-  kysely: 0.28.17
-  lodash-es: 4.18.1
-  ws: 8.21.0
+  "kysely@<0.28.17": ^0.28.17
+  "lodash-es@<4.18.1": ^4.18.1
+  "vite@>=8.0.0 <8.1.6": ^8.1.6
+  "ws@<8.21.0": ^8.21.0
 onlyBuiltDependencies:
   - "@prisma/engines"
   - esbuild
