@@ -10,9 +10,10 @@ const nextConfig: NextConfig = {
     proxyTimeout: 5 * 60 * 1000,
     proxyClientMaxBodySize: '256mb',
     turbopackFileSystemCacheForBuild: true,
-    // TypeScript 7.0 ships only the native `tsc` CLI (no programmatic JS API until
-    // TS 7.1). This tells Next.js to invoke the installed `tsc` command directly for
-    // its build-time type check instead of the JS API. Requires Next.js >= 16.3.
+    // TypeScript 7 ships the native `tsc` CLI but not the classic `lib/typescript.js`
+    // compiler API Next.js uses (TS 7.1's new `typescript/sync|async` API is not a
+    // drop-in replacement). This tells Next.js to invoke the installed `tsc` command
+    // directly for its build-time type check instead. Requires Next.js >= 16.3.
     useTypeScriptCli: true,
   },
   typedRoutes: true,
