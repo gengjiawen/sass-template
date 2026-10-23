@@ -10,6 +10,7 @@ catalog:
   "@trpc/client": ^11.18.0
   better-auth: ^1.7.2
 overrides:
+  "katex@>=0.11.0 <0.18.2": ^0.18.2
   "kysely@<0.28.17": ^0.28.17
   "lodash-es@<4.18.1": ^4.18.1
   "vite@>=8.0.0 <8.1.6": ^8.1.6
