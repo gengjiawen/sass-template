@@ -8,7 +8,7 @@ catalog:
   "@prisma/client": ^7.10.1
   "@trpc/server": ^11.18.0
   "@trpc/client": ^11.18.0
-  better-auth: ^1.7.2
+  better-auth: ^1.7.7
 overrides:
   "katex@>=0.11.0 <0.18.2": ^0.18.2
   "kysely@<0.28.17": ^0.28.17
