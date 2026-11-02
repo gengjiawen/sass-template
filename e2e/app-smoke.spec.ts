@@ -8,8 +8,13 @@ test('home page renders and can switch languages', async ({ page }) => {
   ).toBeVisible()
   await expect(page.getByRole('link', { name: 'Docs' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Language' }).click()
-  await page.getByText('Chinese (Simplified)').click()
+  // On a cold `next dev`, on-demand route compiles can push an HMR update that drops the first click.
+  const chineseOption = page.getByText('Chinese (Simplified)')
+  await expect(async () => {
+    await page.getByRole('button', { name: 'Language' }).click()
+    await expect(chineseOption).toBeVisible({ timeout: 1_000 })
+  }).toPass({ timeout: 15_000 })
+  await chineseOption.click()
 
   await expect(page.getByRole('link', { name: '首页' })).toBeVisible()
   await expect(
