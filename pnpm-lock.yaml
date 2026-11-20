@@ -19,8 +19,8 @@ catalogs:
       specifier: ^1.7.7
       version: 1.7.14
     dotenv:
-      specifier: ^17.4.2
-      version: 17.4.2
+      specifier: ^18.0.10
+      version: 18.0.10
     typescript:
       specifier: 7.1.0-beta
       version: 7.1.0-beta
@@ -45,7 +45,7 @@ importers:
         version: link:packages/env
       dotenv:
         specifier: 'catalog:'
-        version: 17.4.2
+        version: 18.0.10
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -124,7 +124,7 @@ importers:
         version: 2.1.1
       dotenv:
         specifier: 'catalog:'
-        version: 17.4.2
+        version: 18.0.10
       fumadocs-core:
         specifier: 16.17.9
         version: 16.17.9(@mdx-js/mdx@3.1.1)(@modelcontextprotocol/server@2.4.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(lucide-react@1.64.0(@types/react@19.3.0)(react@19.3.1))(next@16.4.5(@babel/core@7.29.7)(@playwright/test@1.64.1)(@types/node@25.9.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(zod@4.6.7)
@@ -218,7 +218,7 @@ importers:
         version: 1.7.14(@prisma/client@7.10.1(prisma@7.10.1(@types/node@25.9.9)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@7.1.0-beta))(typescript@7.1.0-beta))(mysql2@3.24.4(@types/node@25.9.9))(next@16.4.5(@playwright/test@1.64.1)(@types/node@25.9.9)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prisma@7.10.1(@types/node@25.9.9)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@7.1.0-beta))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.18)(vitest@4.1.12(@types/node@25.9.9)(vite@8.3.5(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
       dotenv:
         specifier: 'catalog:'
-        version: 17.4.2
+        version: 18.0.10
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -245,7 +245,7 @@ importers:
         version: 7.10.1(prisma@7.10.1(@types/node@25.9.9)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@7.1.0-beta))(typescript@7.1.0-beta)
       dotenv:
         specifier: 'catalog:'
-        version: 17.4.2
+        version: 18.0.10
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -270,7 +270,7 @@ importers:
         version: 0.13.11(typescript@7.1.0-beta)(valibot@1.4.2(typescript@7.1.0-beta))(zod@4.6.7)
       dotenv:
         specifier: 'catalog:'
-        version: 17.4.2
+        version: 18.0.10
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -3327,6 +3327,11 @@ packages:
   dotenv@17.4.2:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
+
+  dotenv@18.0.10:
+    resolution: {integrity: sha512-89FAA1xchzK2mxVWdr5F/0rldwiueXs6zJM86rO66EzekR1iBdiXRthyG+m5GvkJaFH3C2LESzamTkgndmLT2A==}
+    engines: {node: '>=12'}
+    hasBin: true
 
   effect@3.22.5:
     resolution: {integrity: sha512-AdIU4llI19BzhJ4xUBZix7kS8oiYSlCsJ61j3UM3UyJw9ecDrsrrweDFm/Ku1nHbJWMLoynK+1Me4it3Zkmjpw==}
@@ -8119,6 +8124,8 @@ snapshots:
       is-obj: 2.0.0
 
   dotenv@17.4.2: {}
+
+  dotenv@18.0.10: {}
 
   effect@3.22.5:
     dependencies:
